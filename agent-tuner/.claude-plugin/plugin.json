@@ -1,0 +1,5 @@
+{
+  "name": "agent-tuner",
+  "version": "0.3.0",
+  "description": "AI エージェントの環境構築・最適化を支援するプラグイン"
+}

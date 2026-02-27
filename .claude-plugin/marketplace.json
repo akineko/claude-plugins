@@ -1,0 +1,16 @@
+{
+  "name": "akineko-plugins",
+  "owner": {
+    "name": "akineko"
+  },
+  "plugins": [
+    {
+      "name": "magi",
+      "source": "./magi"
+    },
+    {
+      "name": "agent-tuner",
+      "source": "./agent-tuner"
+    }
+  ]
+}
