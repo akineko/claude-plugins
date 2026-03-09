@@ -11,6 +11,10 @@
     {
       "name": "agent-tuner",
       "source": "./agent-tuner"
+    },
+    {
+      "name": "codex-consult",
+      "source": "./codex-consult"
     }
   ]
 }

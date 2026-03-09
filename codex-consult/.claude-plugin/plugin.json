@@ -1,0 +1,5 @@
+{
+  "name": "codex-consult",
+  "version": "0.1.0",
+  "description": "Codex CLIをヘッドレスで実行し、レビューや設計相談を行うスキル"
+}
