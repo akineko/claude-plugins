@@ -22,12 +22,12 @@ disable-model-invocation: true
 入力（影響分析書パス）
   │
   ├─ Phase 1: 初期化                          ← 影響分析書 + 要求仕様書を読み込み
-  │     └─ Research スキップ
+  │     ├─ Research スキップ
+  │     └─ アーキテクト選択（greenfield / brownfield / domain-first）
   │
   ├─ Phase 2: Goal（セクション1: ゴール）     ← メインエージェント
   │
-  ├─ Phase 3: Design（セクション2-6）         ← 単一エージェント
-  │     └─ greenfield-architect
+  ├─ Phase 3: Design（セクション2-6）         ← 選択されたアーキテクト
   │
   ├─ Phase 4: Review（ユーザー確認＆部分再設計）
   │
@@ -42,6 +42,7 @@ disable-model-invocation: true
 入力（要求仕様書 or テキスト）
   │
   ├─ Phase 1: 初期化 + Research（コード調査）  ← code-investigation-specialist
+  │     └─ アーキテクト選択（greenfield / brownfield / domain-first）
   │
   ├─ Phase 2〜5: パスAと同じ
   │
@@ -52,6 +53,7 @@ disable-model-invocation: true
 
 - サブエージェントはファイル書き込み禁止。内容生成のみ担当する
 - メインエージェントがファイルの作成・保存を行う
+- Design/Revision エージェントには Phase 1.4 で選択されたアーキテクト（`greenfield-architect`, `brownfield-architect`, `domain-first-architect`）を使用する
 - Design エージェントには `references/design-prompt.md` のプロンプトを使用する
 - Revision エージェントには `references/revision-prompt.md` のプロンプトを使用する
 - Planning エージェントには `references/planning-prompt.md` のプロンプトを使用する
@@ -139,6 +141,30 @@ Agent(name="research-frontend", subagent_type="code-investigation-specialist", p
 調査で判明した制約（既存のバリデーション、リレーション、命名規則等）を列挙する。
 ```
 
+### 1.4 設計アーキテクトの選択
+
+Design（Phase 3）と Revision（Phase 4）で使用するアーキテクトエージェントを選択する。
+`$ARGUMENTS` にアーキテクト名の指定がなければ、AskUserQuestion で確認する。
+
+| アーキテクト | エージェント名 | 特徴 |
+|-------------|---------------|------|
+| グリーンフィールド（デフォルト） | `greenfield-architect` | 既存実装を考慮せず、要件を満たす最もシンプルな理想解を提案 |
+| ブラウンフィールド | `brownfield-architect` | 既存コードベースを最大限活かし、費用対効果の高い現実的最善案を提案。障害リスク・復旧容易性も評価 |
+| ドメインファースト | `domain-first-architect` | ドメインモデルの明瞭さと概念境界の一貫性を最優先に設計。過剰な概念分割を避ける |
+
+確認メッセージ例:
+
+```
+設計に使用するアーキテクトを選んでください:
+1. グリーンフィールド（デフォルト）— 理想解重視
+2. ブラウンフィールド — 既存コード活用・費用対効果重視
+3. ドメインファースト — ドメインモデル・概念境界重視
+
+番号または名前で指定してください（未指定なら1）。
+```
+
+選択されたエージェント名を `{選択されたアーキテクト}` として以降の Phase で使用する。
+
 ## Phase 2: Goal（ゴール記述）
 
 メインエージェント自身が、要求仕様書からセクション1（ゴール）を記述する。
@@ -164,13 +190,13 @@ Agent(name="research-frontend", subagent_type="code-investigation-specialist", p
 
 ## Phase 3: Design（設計書生成）
 
-`references/design-prompt.md` を読み込み、変数を埋めて `greenfield-architect` に依頼する。
+`references/design-prompt.md` を読み込み、変数を埋めて `{選択されたアーキテクト}` に依頼する。
 
 ### パスA（影響分析書あり）の場合
 
 ```
 Agent(
-  subagent_type="greenfield-architect",
+  subagent_type="{選択されたアーキテクト}",
   prompt=design-prompt.md の {要求仕様} と {ゴール} と {影響分析書} と {設計対象の単位} と {先行設計書} を埋めたもの
 )
 ```
@@ -184,7 +210,7 @@ Agent(
 
 ```
 Agent(
-  subagent_type="greenfield-architect",
+  subagent_type="{選択されたアーキテクト}",
   prompt=design-prompt.md の {要求仕様} と {ゴール} と {関連コード調査結果} を埋めたもの
 )
 ```
@@ -223,11 +249,11 @@ Design エージェントの出力（セクション2-6）を `implementation-de
 ### 4.3 部分再設計
 
 1. フィードバックから修正対象セクションを特定する
-2. `references/revision-prompt.md` を読み込み、変数を埋めて `greenfield-architect` に依頼する
+2. `references/revision-prompt.md` を読み込み、変数を埋めて `{選択されたアーキテクト}` に依頼する
 
 ```
 Agent(
-  subagent_type="greenfield-architect",
+  subagent_type="{選択されたアーキテクト}",
   prompt=revision-prompt.md の {現在の設計書} と {ユーザーのフィードバック} と {修正対象セクション} と {関連コード調査結果} を埋めたもの
 )
 ```
