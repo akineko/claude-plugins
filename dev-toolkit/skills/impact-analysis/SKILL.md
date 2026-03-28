@@ -2,8 +2,6 @@
 name: impact-analysis
 description: >
   要求仕様書からコードベースを調査し、影響範囲・設計制約・依存関係を分析して影響分析書を作成する。
-  「影響分析して」「impact analysisを作成して」「分析書を作って」と言われたときに使用する。
-  要求仕様書のパスを入力として受け取る。
 argument-hint: "[要求仕様書パス]"
 disable-model-invocation: true
 ---

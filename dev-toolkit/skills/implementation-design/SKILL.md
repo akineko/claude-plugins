@@ -2,8 +2,6 @@
 name: implementation-design
 description: >
   影響分析書・要求仕様書・要件テキストから実装設計書を作成するオーケストレーター。
-  「実装設計書を作って」「implementation designを作成して」「設計書を書いて」と言われたときに使用する。
-  影響分析書のパス、要求仕様書のパス、要件の直接テキストのいずれも入力として受け付ける。
 argument-hint: "[影響分析書パス or 要求仕様書パス or 要件テキスト]"
 disable-model-invocation: true
 ---
