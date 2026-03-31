@@ -39,7 +39,7 @@ disable-model-invocation: true
 ```
 入力（要求仕様書 or テキスト）
   │
-  ├─ Phase 1: 初期化 + Research（コード調査）  ← code-investigation-specialist
+  ├─ Phase 1: 初期化 + Research（コード調査）  ← codebase-investigator
   │     └─ アーキテクト選択（greenfield / brownfield / domain-first）
   │
   ├─ Phase 2〜5: パスAと同じ
@@ -93,13 +93,13 @@ disable-model-invocation: true
    - 要件から影響するサービス/レイヤーを推定する
    - 2つ以上のサービス（例: backend + frontend）に跨る → 並列Research
    - 単一サービス内 → 単一Research
-4. **Research実行** — `code-investigation-specialist` エージェントに調査を依頼する
+4. **Research実行** — `codebase-investigator` エージェントに調査を依頼する
 
 #### 単一Researchの場合
 
 ```
 Agent(
-  subagent_type="code-investigation-specialist",
+  subagent_type="codebase-investigator",
   prompt=下記のResearchプロンプト
 )
 ```
@@ -110,8 +110,8 @@ Agent(
 
 ```
 // 例: バックエンド調査とフロントエンド調査を並列
-Agent(name="research-backend", subagent_type="code-investigation-specialist", prompt=...)
-Agent(name="research-frontend", subagent_type="code-investigation-specialist", prompt=...)
+Agent(name="research-backend", subagent_type="codebase-investigator", prompt=...)
+Agent(name="research-frontend", subagent_type="codebase-investigator", prompt=...)
 ```
 
 #### Researchプロンプト
@@ -261,7 +261,7 @@ Agent(
 
 ### 4.4 追加調査が必要な場合
 
-修正内容が現在のコードベース情報（影響分析書またはResearch結果）ではカバーできない場合（新たな技術領域やサービスが関係する場合）、`code-investigation-specialist` で追加調査を実行してから 4.3 を行う。
+修正内容が現在のコードベース情報（影響分析書またはResearch結果）ではカバーできない場合（新たな技術領域やサービスが関係する場合）、`codebase-investigator` で追加調査を実行してから 4.3 を行う。
 
 ## Phase 5: Planning（実装フェーズ分割）
 

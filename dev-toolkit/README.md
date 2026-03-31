@@ -68,8 +68,8 @@
 
 ### 設計支援
 
-- `code-investigation-specialist`
-  - 機能追加・リファクタリング・バグ修正の計画に向けたコードベース調査を行う
+- `codebase-investigator`
+  - コードベースを調査し、構造・パターン・依存関係・制約などの事実情報を収集・報告する
 - `design-synthesizer`
   - 複数の設計案を統合し、各視点の長所を活かした最適な設計を生成する
 - `implementation-planner`

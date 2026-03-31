@@ -51,7 +51,7 @@ disable-model-invocation: true
 ```
 入力（要求仕様書 or テキスト）
   │
-  ├─ Phase 1: 初期化 + Research（コード調査）  ← code-investigation-specialist
+  ├─ Phase 1: 初期化 + Research（コード調査）  ← codebase-investigator
   │
   ├─ Phase 2〜7: パスAと同じ
   │
@@ -104,13 +104,13 @@ disable-model-invocation: true
    - 要件から影響するサービス/レイヤーを推定する
    - 2つ以上のサービス（例: backend + frontend）に跨る → 並列Research
    - 単一サービス内 → 単一Research
-4. **Research実行** — `code-investigation-specialist` エージェントに調査を依頼する
+4. **Research実行** — `codebase-investigator` エージェントに調査を依頼する
 
 #### 単一Researchの場合
 
 ```
 Agent(
-  subagent_type="code-investigation-specialist",
+  subagent_type="codebase-investigator",
   prompt=下記のResearchプロンプト
 )
 ```
@@ -121,8 +121,8 @@ Agent(
 
 ```
 // 例: バックエンド調査とフロントエンド調査を並列
-Agent(name="research-backend", subagent_type="code-investigation-specialist", prompt=...)
-Agent(name="research-frontend", subagent_type="code-investigation-specialist", prompt=...)
+Agent(name="research-backend", subagent_type="codebase-investigator", prompt=...)
+Agent(name="research-frontend", subagent_type="codebase-investigator", prompt=...)
 ```
 
 #### Researchプロンプト
@@ -302,7 +302,7 @@ Agent(
 
 1. フィードバックから修正対象セクションを特定する
 2. **追加調査の要否を判定する**: 修正内容が現在のコードベース情報（影響分析書またはResearch結果）でカバーできるか確認する
-   - **追加調査が必要な場合**（新たな技術領域やサービスが関係する場合）: `code-investigation-specialist` で調査を実行し、結果を `{コードベース情報}` に追加する
+   - **追加調査が必要な場合**（新たな技術領域やサービスが関係する場合）: `codebase-investigator` で調査を実行し、結果を `{コードベース情報}` に追加する
    - **不要な場合**: そのまま続行
 3. `references/revision-prompt.md` を読み込み、変数を埋めて `greenfield-architect` に依頼する
 

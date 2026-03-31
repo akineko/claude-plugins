@@ -1,6 +1,6 @@
 # Research エージェント用プロンプトテンプレート
 
-SKILL.md の Phase 2 で使用する。`{要求仕様書}` と `{変更一覧}` と `{調査対象}` を埋めて `code-investigation-specialist` に渡す。
+SKILL.md の Phase 2 で使用する。`{要求仕様書}` と `{変更一覧}` と `{調査対象}` を埋めて `codebase-investigator` に渡す。
 
 ---
 

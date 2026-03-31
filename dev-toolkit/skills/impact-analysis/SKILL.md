@@ -25,7 +25,7 @@ disable-model-invocation: true
   │
   ├─ Phase 1: 初期化・変更一覧の作成     ← メインエージェント
   │
-  ├─ Phase 2: Research（コード調査）      ← code-investigation-specialist
+  ├─ Phase 2: Research（コード調査）      ← codebase-investigator
   │     └─ 変更ごとに影響ファイルを調査
   │
   ├─ Phase 3: 分析・文書作成              ← メインエージェント
@@ -62,7 +62,7 @@ disable-model-invocation: true
 
 要求仕様書と同じディレクトリに `impact-analysis.md` を配置する。
 
-例: 要求仕様書が `.claude/tmp/space-in-base/request-spec.md` → `.claude/tmp/space-in-base/impact-analysis.md`
+例: 要求仕様書が `.claude/tmp/feature-x/request-spec.md` → `.claude/tmp/feature-x/impact-analysis.md`
 
 ### 1.3 変更一覧の作成
 
@@ -86,13 +86,13 @@ disable-model-invocation: true
 
 ## Phase 2: Research（コード調査）
 
-`references/research-prompt.md` を読み込み、変数を埋めて `code-investigation-specialist` に依頼する。
+`references/research-prompt.md` を読み込み、変数を埋めて `codebase-investigator` に依頼する。
 
 ### 単一Researchの場合
 
 ```
 Agent(
-  subagent_type="code-investigation-specialist",
+  subagent_type="codebase-investigator",
   prompt=research-prompt.md の変数を埋めたもの
 )
 ```
@@ -102,8 +102,8 @@ Agent(
 サービス/レイヤーごとにエージェントを並列起動する。
 
 ```
-Agent(name="research-backend", subagent_type="code-investigation-specialist", prompt=...)
-Agent(name="research-frontend", subagent_type="code-investigation-specialist", prompt=...)
+Agent(name="research-backend", subagent_type="codebase-investigator", prompt=...)
+Agent(name="research-frontend", subagent_type="codebase-investigator", prompt=...)
 ```
 
 Research結果を変更IDごとに整理して保持する（Phase 3で使用）。
