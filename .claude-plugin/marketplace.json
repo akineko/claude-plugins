@@ -23,6 +23,10 @@
     {
       "name": "llm-wiki",
       "source": "./llm-wiki"
+    },
+    {
+      "name": "project-bootstrap",
+      "source": "./project-bootstrap"
     }
   ]
 }
