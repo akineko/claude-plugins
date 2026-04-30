@@ -19,6 +19,10 @@
     {
       "name": "codex-consult",
       "source": "./codex-consult"
+    },
+    {
+      "name": "llm-wiki",
+      "source": "./llm-wiki"
     }
   ]
 }

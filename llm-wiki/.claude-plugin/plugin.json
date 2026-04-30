@@ -1,0 +1,5 @@
+{
+  "name": "llm-wiki",
+  "version": "0.1.0",
+  "description": "Karpathy の LLM Wiki 思想に基づく LLM が永続的なナレッジベース（Wiki）を構築・維持するためのスキル群を提供する。"
+}
