@@ -93,7 +93,7 @@
 
 [IaC の有無と対象範囲。不採用なら「設定値ドキュメント化」を明記]
 
-例: IaC は採用しない。各 PaaS の GUI 設定値を `docs/infra-config.md` に記録し、再現性を担保する。
+例: IaC は採用しない。各 PaaS の GUI 設定値を `docs/infrastructure-config.md` に記録し、再現性を担保する。
 
 ### 5.2 ツール
 

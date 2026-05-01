@@ -15,10 +15,10 @@
 | `/project-bootstrap:project-overview` | プロジェクト概要書（目的・利用者・スコープ・機能要件・非機能要件）を対話的に作成 |
 | `/project-bootstrap:architecture-design` | システムアーキテクチャ設計書を対話的に作成 |
 | `/project-bootstrap:security-design` | セキュリティ設計書を対話的に作成 |
-| `/project-bootstrap:infra-design` | インフラ・デプロイ設計書を対話的に作成 |
+| `/project-bootstrap:infrastructure-design` | インフラ・デプロイ設計書を対話的に作成 |
 | `/project-bootstrap:repository-environment` | リポジトリ・開発環境設計書を対話的に作成 |
-| `/project-bootstrap:directory-structure` | パッケージ単位でディレクトリ構成設計書を作成 |
 | `/project-bootstrap:test-strategy` | テスト戦略書を対話的に作成 |
+| `/project-bootstrap:directory-structure` | パッケージ単位でディレクトリ構成設計書を作成 |
 | `/project-bootstrap:adr` | ADR の初期生成・追加・更新を行う |
 
 ## 推奨フロー
@@ -29,12 +29,11 @@
 2. architecture-design     アーキテクチャ
         ↓
 3. security-design         セキュリティ
-4. infra-design            インフラ・デプロイ
+4. infrastructure-design   インフラ・デプロイ
 5. repository-environment  リポジトリ・開発環境
+6. test-strategy           テスト戦略
         ↓
-6. directory-structure     ディレクトリ構成（パッケージ単位、必要な数だけ）
-        ↓
-7. test-strategy           テスト戦略
+7. directory-structure     ディレクトリ構成（パッケージ単位、必要な数だけ）
         ↓
 8. adr                     ADR の初期生成（以降は随時追加）
 ```
