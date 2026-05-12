@@ -17,6 +17,14 @@
       "source": "./dev-toolkit"
     },
     {
+      "name": "prompt-engineer",
+      "source": "./prompt-engineer"
+    },
+    {
+      "name": "cc-prompt-engineer",
+      "source": "./cc-prompt-engineer"
+    },
+    {
       "name": "codex-consult",
       "source": "./codex-consult"
     },
@@ -27,6 +35,10 @@
     {
       "name": "project-bootstrap",
       "source": "./project-bootstrap"
+    },
+    {
+      "name": "doc-toolkit",
+      "source": "./doc-toolkit"
     }
   ]
 }
