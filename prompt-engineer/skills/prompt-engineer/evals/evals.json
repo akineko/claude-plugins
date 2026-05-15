@@ -1,0 +1,26 @@
+{
+  "skill_name": "prompt-engineer",
+  "evals": [
+    {
+      "id": 1,
+      "name": "create-claude-md",
+      "prompt": "Next.js 15 + TypeScript + Prisma + PostgreSQL の社内向け管理画面リポジトリ用に CLAUDE.md を作って。pnpm でモノレポ管理してて、テストは vitest（unit）と playwright（e2e）で書いてる。デプロイは Vercel、シークレットは Vercel の環境変数。コミットは Conventional Commits 風。チーム5人で、main への直 push は禁止で必ず PR レビュー。あと、ローカルで動かすには docker-compose で Postgres を立てる必要があるのと、prisma migrate を実行しないとアプリ起動できないのが新規メンバーがハマるポイント。",
+      "expected_output": "適切なサイズ（200行以下目安）の CLAUDE.md。推測できないコマンド（pnpm, vitest, playwright, prisma migrate, docker-compose）と独自規約（Conventional Commits, PR必須, main直push禁止）と環境固有の癖（Postgres起動順、prisma migrate前提）が記載されている。言語標準や自明な実践（'write clean code'等）は含まれない。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "review-bad-agents-md",
+      "prompt": "/home/akineko/dev/src/github.com/akineko/claude-plugins/prompt-engineer-workspace/inputs/bad-agents-md/AGENTS.md をレビューして改善案を出して。修正後のファイルも提示して。",
+      "expected_output": "(1) サイズ過剰の指摘、(2) ALWAYS/NEVER/CRITICAL の過剰トリガー指摘、(3) 言語標準・自明な実践（TypeScript解説、'write clean code'等）の除去、(4) 詳細API documentationの分離、(5) 頻繁に変わる情報（チケット番号・人名・スプリント番号）の除去、(6) 'properly'等の曖昧語修正、(7) 重複セクションの統合、(8) DO NOT 列挙を肯定形へ。これらが優先度付きで提示され、改善後のAGENTS.mdが提示されること。",
+      "files": ["/home/akineko/dev/src/github.com/akineko/claude-plugins/prompt-engineer-workspace/inputs/bad-agents-md/AGENTS.md"]
+    },
+    {
+      "id": 3,
+      "name": "create-subagent",
+      "prompt": "コードレビュー専門のサブエージェント定義（.claude/agents/code-reviewer.md）を作って欲しい。役割は、変更されたファイル群を読んでバグ・セキュリティ問題・パフォーマンス問題を検出する。優先度（high/medium/low）を付けて、ファイル名:行番号と具体的な修正案を含めて報告する。重要：勝手にコードを編集してはダメで、レポートだけ出す。読み取り系のツール（Read, Grep, Glob, Bash）だけ使う。",
+      "expected_output": ".claude/agents/code-reviewer.md として保存可能なファイル。YAML frontmatter に name, description, tools (Read,Grep,Glob,Bash), model がある。本体は役割定義（'You are a ...'）、検出対象3カテゴリ、出力形式の明示、'編集しない' という制約を含む。description はトリガーフレーズを含み、いつ使うかが明確。",
+      "files": []
+    }
+  ]
+}
