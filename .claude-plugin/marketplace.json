@@ -21,10 +21,6 @@
       "source": "./prompt-engineer"
     },
     {
-      "name": "cc-prompt-engineer",
-      "source": "./cc-prompt-engineer"
-    },
-    {
       "name": "codex-consult",
       "source": "./codex-consult"
     },
