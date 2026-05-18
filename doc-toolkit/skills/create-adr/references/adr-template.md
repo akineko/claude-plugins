@@ -3,7 +3,7 @@
 MADR (Markdown Architectural Decision Records) を簡素化したテンプレート。実装設計書ではなく**意思決定の記録**であることを念頭に、各セクションは簡潔に書く。
 
 ```markdown
-# <連番もしくは日付>-<短いタイトル>
+# <NNNN>-<短いタイトル>
 
 - Status: <Proposed | Accepted | Deprecated | Superseded by [link]>
 - Date: <YYYY-MM-DD>

@@ -105,11 +105,12 @@
 ### ファイル名
 
 - ケバブケース（小文字・ハイフン区切り）
+- 連番プレフィックスを使うカテゴリ（推奨）:
+  - `adr/`: `NNNN-<title>.md`（ゼロ埋め 4 桁、例: `0001-adopt-oidc-pkce.md`）。ADR は採番順序が分かりやすく、相互参照（Superseded by 0042 など）も書きやすい。日付プレフィックス `YYYY-MM-DD-<title>.md` を選ぶプロジェクトもあるが、既存に合わせる場合のみ
 - 日付プレフィックスを使うカテゴリ:
-  - `adr/`: `YYYY-MM-DD-<title>.md`（連番運用 `0001-<title>.md` でも可、既存に合わせる）
   - `research/`: `YYYY-MM-DD-<topic>.md`（陳腐化判断がしやすい）
-  - `postmortem/`: `YYYY-MM-DD-<event>.md`
-- 日付プレフィックスを使わないカテゴリ:
+  - `postmortem/`: `YYYY-MM-DD-<event>.md`（発生日が一次情報）
+- プレフィックスを使わないカテゴリ:
   - `design/`: `<feature-name>.md`（例: `audit-log.md`, `rbac.md`）
   - `architecture/`: `<topic>.md`（例: `error-handling.md`, `logging.md`）
   - `runbook/`: `<operation>.md`（例: `deploy.md`, `rollback.md`）
