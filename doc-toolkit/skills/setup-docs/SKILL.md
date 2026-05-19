@@ -25,7 +25,7 @@ description: プロジェクトのドキュメント基盤（`docs/` のディ�
 
 ## 起動時に決めること
 
-書き始める前に次の 3 点を確定させる。
+書き始める前に次の 4 点を確定させる。
 
 ### 1. リポジトリ形態（シングル/モノ）
 
@@ -69,6 +69,28 @@ description: プロジェクトのドキュメント基盤（`docs/` のディ�
 
 任意の採用基準は [references/layouts.md](references/layouts.md) の「カテゴリ採用の判断指針」を参照。コアでも「このプロジェクトには不要」と明確に言われた場合は外してよい（例: 個人プロジェクトで ADR を作らない判断は妥当）。
 
+### 4. 構成モード（minimum / standard）
+
+`docs/` 配下の構成を 2 モードから選ぶ。カテゴリのライフサイクル（累積するか／主題ごとに少しずつ増えるか）を踏まえて、必要なディレクトリだけを最初から作る。
+
+- **minimum モード（新規・小規模向けの推奨デフォルト）**
+  - 累積系（`adr/`, `research/`, `postmortem/`）のみサブディレクトリ + `README.md`
+  - 主題系（`architecture`, `design`, `runbook`）は `docs/` 直下に `_guide-<category>.md` をガイドファイルとして配置し、実コンテンツも直下にフラット配置
+  - 単発系（`glossary.md`）はそのまま `docs/glossary.md`
+- **standard モード**
+  - 全カテゴリで `<category>/README.md` を作る現行構成
+  - 既存に `docs/<category>/` 構造があるプロジェクト、ファイル数が既に多いプロジェクト、最初から構造を固定したいチーム向け
+
+判断指針:
+
+- 新規プロジェクト・空の `docs/` → **minimum** を推奨
+- 既存 `docs/<category>/` 構造がある → **standard** でその構造に合わせて追加
+- ユーザーが明示的に指定 → それに従う
+
+minimum モードのガイドファイル（`_guide-<category>.md`）は、内容としては standard モードでの `<category>/README.md` と完全に同一にする。これにより**将来サブディレクトリへ分割する際は `mv` だけで済む**。`_guide-` プレフィックスはガイドファイルが一覧で先頭にまとまるための規約。
+
+レイアウト図とカテゴリ分類、分割タイミング・手順は [references/layouts.md](references/layouts.md) の「構成モード」セクションを参照。
+
 ## ワークフロー
 
 1. **リポジトリ形態を判定**
@@ -84,22 +106,26 @@ description: プロジェクトのドキュメント基盤（`docs/` のディ�
    - コア 4 つ＋任意 3 つから選んでもらう（既定提案を出してから聞くと早い）
    - プロジェクトの状況（新規/既存、規模、運用フェーズか）を踏まえて推奨セットを提示する
 
-4. **配置を決める**
-   - シングルレポ: 全て `docs/` 配下に
-   - モノレポ: [references/layouts.md](references/layouts.md) の判断ルールに従う
-     - 全体に影響するもの（ADR、横断的方針、用語集）→ ルート `docs/`
-     - パッケージ固有のもの（機能設計、パッケージ用の技術調査）→ `packages/<pkg>/docs/`
-     - 迷ったらルートに置いて相互リンク
+4. **構成モードを決める**（minimum / standard）
+   - 新規・空の `docs/` → minimum を推奨。既存 `docs/<category>/` 構造があるなら standard でそれに合わせる
+   - 判断の詳細は [references/layouts.md](references/layouts.md) の「構成モード」セクション
 
-5. **ディレクトリと README を生成**
-   - 各 README の内容は [references/readme-templates.md](references/readme-templates.md) のひな形を出発点にする
-   - プロジェクト固有の事情（言語、フレームワーク、運用形態）がヒアリングや既存コードから読み取れる場合は、README の文面を少し調整してよい（例: TypeScript プロジェクトなら architecture/ の例として `tsconfig-strategy.md` を挙げる、など）
+5. **配置を決める**
+   - シングルレポ × モード で具体的な配置が決まる
+   - モノレポでは [references/layouts.md](references/layouts.md) の判断ルールに従い、全体に影響するもの（ADR、横断的方針、用語集）はルート `docs/`、パッケージ固有のものは `packages/<pkg>/docs/`
+   - 迷ったらルートに置いて相互リンク
+
+6. **ディレクトリ・ガイドファイル・README を生成**
+   - 各カテゴリの内容は [references/readme-templates.md](references/readme-templates.md) のひな形を出発点にする
+   - minimum モードの主題系カテゴリは、同じひな形を `docs/_guide-<category>.md` として書き出す（中身は standard モードの `<category>/README.md` と同一）
+   - minimum モードの `docs/README.md` には「将来の分割計画」セクションを含める（テンプレート参照）
+   - プロジェクト固有の事情（言語、フレームワーク、運用形態）がヒアリングや既存コードから読み取れる場合は、文面を少し調整してよい（例: TypeScript プロジェクトなら architecture の例として `tsconfig-strategy.md` を挙げる）
    - 既存ファイルは絶対に上書きしない。重複したら**スキップしてユーザーに報告**
 
-6. **生成結果のサマリを報告**
-   - 作ったディレクトリ・ファイル一覧
+7. **生成結果のサマリを報告**
+   - 作ったディレクトリ・ガイドファイル・README 一覧（モード明示）
    - 既存と重複してスキップしたもの
-   - 次にやることの導線（「ADR を 1 件作るなら `create-adr` を使う」「既存機能の設計を残したいなら `extract-design`」）
+   - 次にやることの導線（「ADR を 1 件作るなら `create-adr` を使う」「既存機能の設計を残したいなら `extract-design`」、minimum モードなら「主題系のファイルが増えたら setup-docs を再実行して分割支援を起動」）
 
 ## モノレポ運用の判断ルール
 
@@ -112,6 +138,27 @@ description: プロジェクトのドキュメント基盤（`docs/` のディ�
 - **用語集** → 原則ルートに 1 つ。パッケージ固有用語は同じファイル内のセクションで分ける
 
 詳細は [references/layouts.md](references/layouts.md)。
+
+## 再実行時の動作
+
+このスキルは初回セットアップだけでなく、後から拡張・再構成のためにも再実行できる。
+
+### minimum モードのガイドファイルをサブディレクトリへ昇格させる（minimum → standard 部分分割）
+
+主題系カテゴリのファイルが増えてきたタイミングで実行する。
+
+1. `docs/_guide-<category>.md` の存在を検出して、対象カテゴリを列挙
+2. 各対象について「`<category>/` サブディレクトリに分割しますか？」をユーザーに確認
+3. 承認されたら:
+   - `docs/<category>/` を作成
+   - `_guide-<category>.md` を `<category>/README.md` にリネーム（内容は変えない）
+   - `docs/` 直下にあるコンテンツファイルのうち該当カテゴリに属するものを 1 つずつ提示し、`<category>/` へ移すかをユーザーに確認（自動判定は誤りやすいので必ず確認）
+   - `docs/README.md` のリンクと「将来の分割計画」セクションを更新する案を**ユーザーに提示**（直接書き換えず）
+
+### 不足カテゴリの追加
+
+最初は採用しなかったカテゴリ（例: 運用フェーズに入ったので `postmortem/` を追加したい）を後から追加する。
+通常の追記モードと同じく、既存ファイルには手を入れず不足分のみ作る。
 
 ## 既存 `docs/` がある場合の振る舞い
 
@@ -127,8 +174,9 @@ description: プロジェクトのドキュメント基盤（`docs/` のディ�
 - **個別ドキュメントの中身は作らない**。このスキルが作るのは構成と書き方ガイドのみ。`create-adr` や `extract-design` の役割を侵食しない
 - **過剰なカテゴリを作らない**。「あったほうがいいかも」で `runbook/` や `postmortem/` を空のまま増やすと、未使用のディレクトリが心理的負債になる。実際に使う見込みがあるものだけ作る
 - **既存ファイルを上書きしない**。これは最重要。重複が見つかればスキップして報告する
-- **空ディレクトリは作らない**。各ディレクトリには必ず `README.md` を置く（`.gitkeep` ではなく、書き方ガイドとしての中身を持つ README）
-- **README から関連スキルへの導線を入れる**。`adr/README.md` には `create-adr` を、`design/README.md` には `extract-design` を呼び出せることを書いておく
+- **空ディレクトリは作らない**。サブディレクトリには必ず `README.md` を、主題系のガイドは `_guide-<category>.md` として置く（`.gitkeep` ではなく中身を持つファイル）
+- **minimum モードのガイドファイル内容は standard モードと同一に保つ**。将来の `mv` だけで分割できる前提を崩さない
+- **README/ガイドから関連スキルへの導線を入れる**。`adr/README.md`（または相当ファイル）には `create-adr` を、`design/README.md`（または `_guide-design.md`）には `extract-design` を呼び出せることを書いておく
 
 ## 補助リソース
 

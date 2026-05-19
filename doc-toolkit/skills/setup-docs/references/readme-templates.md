@@ -6,9 +6,21 @@
 
 セクション間の見出しレベルは、書き出すファイル側では `#` から始まるよう調整する。
 
+## モード別の書き出し対応
+
+- **`docs/README.md`** はモードごとに 2 種類のひな形があり、選択したモードに応じて書き出す
+- **累積系（adr / research / postmortem）と単発系（glossary）** はモード非依存。`<category>/README.md` または `docs/glossary.md` として書き出す
+- **主題系（architecture / design / runbook）** はモードによって書き出し先が変わるが**中身は同一**:
+  - standard モード: `docs/<category>/README.md`
+  - minimum モード: `docs/_guide-<category>.md`
+  - 同一の内容を保つことで、後から `mv docs/_guide-<category>.md docs/<category>/README.md` だけで分割できる
+- モノレポでは、パッケージ配下に書き出すときも同じ規則。主題系のガイドは `packages/<pkg>/docs/_guide-<category>.md`（minimum）または `packages/<pkg>/docs/<category>/README.md`（standard）
+
 ---
 
-## docs/README.md（ルートインデックス）
+## docs/README.md（standard モード版）
+
+全カテゴリがサブディレクトリに分かれている構成のときの README ひな形。
 
 ```markdown
 # ドキュメント
@@ -36,6 +48,71 @@
 - **「なぜ」を書く**。「何を」だけだと将来読み返したときの価値が薄い
 - **1 主題 1 ファイル**。複数の論点を 1 ファイルに詰めない
 - **コードが変わると陳腐化する内容は最小限に**。長期保管できる情報に絞る
+
+## 関連ツール
+
+- `create-adr` スキル — 設計議論や設計書から ADR を抽出する
+- `extract-design` スキル — 実装設計書や既存コードから設計ドキュメントを抽出する
+```
+
+---
+
+## docs/README.md（minimum モード版）
+
+累積系のみサブディレクトリ、主題系は `docs/` 直下フラット配置のときの README ひな形。`_guide-<category>.md` への索引と、将来サブディレクトリへ分割するための計画を含む。
+
+```markdown
+# ドキュメント
+
+このディレクトリにはプロジェクト全体に関わる長期保管用のドキュメントを置く。
+**1 年後、もしくは新しいメンバーが参加したときに役に立つこと**を基準に書く。
+
+## 現在の構成
+
+このプロジェクトは「最小スタート」構成。累積するカテゴリ（ADR、調査、ポストモーテム）のみサブディレクトリで分け、主題系（横断的方針、機能設計、運用手順）は `docs/` 直下にフラット配置している。書き方ガイドは `_guide-<category>.md` として並ぶ。
+
+## カテゴリ
+
+<!-- このプロジェクトで採用したカテゴリだけを残す -->
+
+| 種類 | 場所 | 書き方ガイド |
+|---|---|---|
+| ADR（意思決定の記録） | [adr/](./adr/) | [adr/README.md](./adr/README.md) |
+| 調査ドキュメント | [research/](./research/) | [research/README.md](./research/README.md) |
+| ポストモーテム | [postmortem/](./postmortem/) | [postmortem/README.md](./postmortem/README.md) |
+| 横断的方針 | `docs/` 直下に `<topic>.md` として配置 | [_guide-architecture.md](./_guide-architecture.md) |
+| 機能設計 | `docs/` 直下に `<feature>.md` として配置 | [_guide-design.md](./_guide-design.md) |
+| 運用手順 | `docs/` 直下に `<operation>.md` として配置 | [_guide-runbook.md](./_guide-runbook.md) |
+| 用語集 | [glossary.md](./glossary.md) | （単一ファイル運用） |
+
+## 書くときの原則
+
+- **コードを読めば分かることは書かない**。型・実装の細部はコードが一次情報
+- **「なぜ」を書く**。「何を」だけだと将来読み返したときの価値が薄い
+- **1 主題 1 ファイル**。複数の論点を 1 ファイルに詰めない
+- **コードが変わると陳腐化する内容は最小限に**。長期保管できる情報に絞る
+
+## 将来サブディレクトリへ分割する目安
+
+主題系（architecture / design / runbook）のドキュメントが増えてきたら、サブディレクトリへの分離を検討する。
+
+タイミングの目安:
+
+- 同じ主題系カテゴリのファイルが 5 つ以上溜まった
+- 別カテゴリのファイルと取り違えやすくなった
+- カテゴリ内でさらに分類したくなった
+
+分割手順（architecture を例に）:
+
+\`\`\`bash
+mkdir docs/architecture
+mv docs/_guide-architecture.md docs/architecture/README.md
+mv docs/error-handling.md docs/architecture/    # 該当する主題ファイルをすべて移動
+mv docs/logging.md docs/architecture/
+# このファイル（docs/README.md）の「カテゴリ」表と本セクションを更新
+\`\`\`
+
+`setup-docs` スキルを再実行すれば分割支援が起動する。
 
 ## 関連ツール
 

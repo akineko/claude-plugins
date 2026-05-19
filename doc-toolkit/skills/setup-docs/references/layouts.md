@@ -1,6 +1,6 @@
 # layouts — ディレクトリ構成と配置判断
 
-シングルレポとモノレポのディレクトリ構成、カテゴリ採用の判断指針、モノレポでの配置ルールをまとめる。
+シングルレポとモノレポのディレクトリ構成、カテゴリ採用の判断指針、構成モード（minimum / standard）、モノレポでの配置ルールをまとめる。
 
 ## カテゴリ採用の判断指針
 
@@ -16,7 +16,92 @@
 
 判断に迷ったときの原則: **「今すぐ書く見込みがないものは作らない」**。未使用のディレクトリは心理的負債になる。後から追加するのは容易なので、必要になってからこのスキルを再実行して追加する選択肢を残しておく。
 
+## カテゴリ分類
+
+カテゴリは「ファイルがどう増えていくか」で 3 種類に分かれる。これが構成モードの差を生む。
+
+| 種別 | カテゴリ | 増え方 | ファイル名の傾向 |
+|---|---|---|---|
+| 累積系 | `adr/`, `research/`, `postmortem/` | 連番・時系列で確実に増える | `0001-...md`, `YYYY-MM-DD-...md` |
+| 主題系 | `architecture`, `design`, `runbook` | 主題ごとに少しずつ増える。初期は数件 | `error-handling.md`, `audit-log.md`, `deploy.md` |
+| 単発系 | `glossary` | 1 ファイル運用 | `glossary.md` |
+
+## 構成モード
+
+`docs/` 配下の構成は、プロジェクトの規模・状態に応じて 2 モードを使い分ける。
+
+### minimum モード（新規・小規模向けの推奨デフォルト）
+
+**累積系のみサブディレクトリ + README、主題系は `docs/` 直下にフラット配置 + `_guide-<category>.md` をガイドとして並べる**。
+
+特徴:
+
+- 初期のディレクトリ数を最小化し、未使用ディレクトリの心理的負債を減らす
+- 主題系の書き方ガイドは `_guide-<category>.md` として `docs/` 直下に置き、ファイル一覧の先頭に集まる（アンダースコアプレフィックス）
+- `_guide-<category>.md` の内容は standard モードの `<category>/README.md` と完全に同一。将来の分割は `mv` だけで済む
+
+### standard モード
+
+**全カテゴリで `<category>/README.md` を作る現行構成**。既存に `docs/<category>/` 構造があるプロジェクト、ファイル数が既に多いプロジェクト、最初から構造を固定したいチーム向け。
+
+### モード選択の判断
+
+- **新規プロジェクト・空の `docs/`** → minimum
+- **既存に `docs/<category>/` 構造がある** → standard でその構造に合わせて追記
+- **ユーザーが明示的に指定** → それに従う
+- **判断が付かない** → minimum で始めて、必要時に再実行で分割
+
+### minimum → standard の分割タイミングと手順
+
+主題系カテゴリのファイルが次のいずれかになったら分割を検討:
+
+- 同じ主題系カテゴリのファイルが 5 つ以上溜まった
+- 別カテゴリのファイルと取り違えやすくなった
+- カテゴリ内でさらに分類したくなった
+
+分割は機械的に行える:
+
+```bash
+mkdir docs/architecture
+mv docs/_guide-architecture.md docs/architecture/README.md
+mv docs/error-handling.md docs/architecture/    # 該当する主題ファイルをすべて移動
+mv docs/logging.md docs/architecture/
+# docs/README.md のリンクと「将来の分割計画」セクションを更新
+```
+
+このスキル（`setup-docs`）を再実行すれば分割支援が起動する（SKILL.md の「再実行時の動作」を参照）。
+
 ## シングルレポのレイアウト
+
+### minimum モード
+
+```
+<repo-root>/
+└── docs/
+    ├── README.md                # 索引 + 簡潔ルール + 将来の分割計画
+    ├── adr/                     # 累積系
+    │   ├── README.md
+    │   └── (ADRファイル)
+    ├── research/                # 累積系
+    │   ├── README.md
+    │   └── (researchファイル)
+    ├── postmortem/              # 任意・累積系
+    │   ├── README.md
+    │   └── (postmortemファイル)
+    ├── _guide-architecture.md   # 主題系の書き方ガイド（先頭にまとまる）
+    ├── _guide-design.md         # 同上
+    ├── _guide-runbook.md        # 任意
+    ├── (architecture系コンテンツ).md   # 例: error-handling.md
+    ├── (design系コンテンツ).md         # 例: audit-log.md
+    ├── (runbook系コンテンツ).md        # 任意: deploy.md など
+    └── glossary.md              # 任意・単発系
+```
+
+- ガイドファイル（`_guide-*.md`）はソート上、アンダースコアプレフィックスでまとまって先頭に並ぶ
+- コンテンツは `docs/` 直下にフラット配置（`error-handling.md`, `audit-log.md` など）
+- ファイル数が増えてきたら、累積系と同様にサブディレクトリへ昇格させる
+
+### standard モード
 
 ```
 <repo-root>/
@@ -42,6 +127,33 @@
 - `runbook` と `postmortem` はファイルが増えていくのでディレクトリ運用
 
 ## モノレポのレイアウト
+
+### minimum モード
+
+```
+<repo-root>/
+├── docs/                              # システム全体に関わるもの
+│   ├── README.md
+│   ├── adr/                           # 累積系
+│   │   └── README.md
+│   ├── _guide-architecture.md         # 主題系（全体規約）のガイド
+│   ├── (architecture系コンテンツ).md  # 例: error-handling.md
+│   ├── glossary.md                    # 任意・単発系
+│   ├── _guide-runbook.md              # 任意
+│   ├── (runbook系コンテンツ).md       # 任意
+│   └── postmortem/                    # 任意・累積系
+│       └── README.md
+└── packages/                          # または apps/, services/, libs/ など
+    └── <package-name>/
+        └── docs/
+            ├── README.md
+            ├── research/              # 累積系（パッケージ向け）
+            │   └── README.md
+            ├── _guide-design.md       # 主題系（パッケージ固有設計）のガイド
+            └── (design系コンテンツ).md # 例: audit-log.md
+```
+
+### standard モード
 
 ```
 <repo-root>/
@@ -110,10 +222,14 @@
 - 日付プレフィックスを使うカテゴリ:
   - `research/`: `YYYY-MM-DD-<topic>.md`（陳腐化判断がしやすい）
   - `postmortem/`: `YYYY-MM-DD-<event>.md`（発生日が一次情報）
-- プレフィックスを使わないカテゴリ:
-  - `design/`: `<feature-name>.md`（例: `audit-log.md`, `rbac.md`）
-  - `architecture/`: `<topic>.md`（例: `error-handling.md`, `logging.md`）
-  - `runbook/`: `<operation>.md`（例: `deploy.md`, `rollback.md`）
+- プレフィックスを使わないカテゴリ（コンテンツファイル）:
+  - `design/` 配下または minimum モードでの `docs/` 直下: `<feature-name>.md`（例: `audit-log.md`, `rbac.md`）
+  - `architecture/` 配下または minimum モードでの `docs/` 直下: `<topic>.md`（例: `error-handling.md`, `logging.md`）
+  - `runbook/` 配下または minimum モードでの `docs/` 直下: `<operation>.md`（例: `deploy.md`, `rollback.md`）
+- minimum モード専用のガイドファイル名:
+  - `_guide-<category>.md`（例: `_guide-architecture.md`, `_guide-design.md`, `_guide-runbook.md`）
+  - アンダースコアプレフィックスでファイル一覧の先頭にまとまり、コンテンツと視覚的に区別される
+  - 中身は standard モードの `<category>/README.md` と同一にする（将来 `mv` で昇格できるよう）
 
 ### ディレクトリ名
 
