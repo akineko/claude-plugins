@@ -17,10 +17,6 @@
       "source": "./dev-toolkit"
     },
     {
-      "name": "prompt-engineer",
-      "source": "./prompt-engineer"
-    },
-    {
       "name": "codex-consult",
       "source": "./codex-consult"
     },
@@ -35,6 +31,10 @@
     {
       "name": "doc-toolkit",
       "source": "./doc-toolkit"
+    },
+    {
+      "name": "ai-tuner",
+      "source": "./ai-tuner"
     }
   ]
 }
