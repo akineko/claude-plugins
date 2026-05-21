@@ -13,18 +13,22 @@
 | `glossary.md` | 任意 | ドメイン用語・略語が多い／用語のブレを実感している | 一般的な用語しか使わないアプリ |
 | `runbook/` | 任意 | 本番運用がある／手作業の手順が複数ある | ローカル/個人開発のみ／自動化で十分なとき |
 | `postmortem/` | 任意 | 運用フェーズにあり、インシデントから学ぶ仕組みを作りたい | まだリリース前／インシデントが発生していない |
+| `plans/` | 任意 | 中規模以上の変更を計画段階から残したい／設計書と恒久ドキュメントを分離したい | 数ファイル程度の変更しか発生しない極小規模／個人プロジェクト |
 
 判断に迷ったときの原則: **「今すぐ書く見込みがないものは作らない」**。未使用のディレクトリは心理的負債になる。後から追加するのは容易なので、必要になってからこのスキルを再実行して追加する選択肢を残しておく。
 
 ## カテゴリ分類
 
-カテゴリは「ファイルがどう増えていくか」で 3 種類に分かれる。これが構成モードの差を生む。
+カテゴリは「ファイルがどう増えていくか／消えるか」で 4 種類に分かれる。これが構成モードの差と削除方針を生む。
 
-| 種別 | カテゴリ | 増え方 | ファイル名の傾向 |
+| 種別 | カテゴリ | 増え方／消え方 | ファイル名の傾向 |
 |---|---|---|---|
-| 累積系 | `adr/`, `research/`, `postmortem/` | 連番・時系列で確実に増える | `0001-...md`, `YYYY-MM-DD-...md` |
-| 主題系 | `architecture`, `design`, `runbook` | 主題ごとに少しずつ増える。初期は数件 | `error-handling.md`, `audit-log.md`, `deploy.md` |
-| 単発系 | `glossary` | 1 ファイル運用 | `glossary.md` |
+| 累積系 | `adr/`, `research/`, `postmortem/` | 連番・時系列で確実に増える。削除しない | `0001-...md`, `YYYY-MM-DD-...md` |
+| 主題系 | `architecture`, `design`, `runbook` | 主題ごとに少しずつ増える。初期は数件。削除しない | `error-handling.md`, `audit-log.md`, `deploy.md` |
+| 単発系 | `glossary` | 1 ファイル運用。削除しない | `glossary.md` |
+| **transient 系** | **`plans`** | **同時並行数で頭打ち。実装完了時に削除する** | `refactor-auth-middleware.md`, `feature-multi-tenant.md` |
+
+transient 系は他のカテゴリと性質が根本的に違う。**実装完了時に残す価値のある情報を各所（ADR / design / architecture など）に抽出して、計画書本体は削除する**。これにより設計書に永続的判断と陳腐化する手順・コードが混在する問題を避ける。
 
 ## 構成モード
 
@@ -32,7 +36,7 @@
 
 ### minimum モード（新規・小規模向けの推奨デフォルト）
 
-**累積系のみサブディレクトリ + README、主題系は `docs/` 直下にフラット配置 + `_guide-<category>.md` をガイドとして並べる**。
+**累積系と transient 系のみサブディレクトリ + README、主題系は `docs/` 直下にフラット配置 + `_guide-<category>.md` をガイドとして並べる**。
 
 特徴:
 
@@ -88,6 +92,10 @@ mv docs/logging.md docs/architecture/
     ├── postmortem/              # 任意・累積系
     │   ├── README.md
     │   └── (postmortemファイル)
+    ├── plans/                   # 任意・transient系（完了時に削除）
+    │   ├── README.md
+    │   ├── draft.md
+    │   └── (実装計画書)
     ├── _guide-architecture.md   # 主題系の書き方ガイド（先頭にまとまる）
     ├── _guide-design.md         # 同上
     ├── _guide-runbook.md        # 任意
@@ -118,13 +126,17 @@ mv docs/logging.md docs/architecture/
     ├── glossary.md            # 任意: 用語集
     ├── runbook/               # 任意
     │   └── README.md
-    └── postmortem/            # 任意
-        └── README.md
+    ├── postmortem/            # 任意
+    │   └── README.md
+    └── plans/                 # 任意: transient系（完了時に削除）
+        ├── README.md
+        └── draft.md
 ```
 
 - ルートは `docs/` で統一する（`doc/` でも構わないが、既存に合わせる）
 - `glossary` は単一ファイル運用が現実的（複数ファイルにすると重複が起きる）
 - `runbook` と `postmortem` はファイルが増えていくのでディレクトリ運用
+- `plans` は transient 系。実装計画書の置き場で、完了時に削除する前提（モード問わずサブディレクトリ運用）
 
 ## モノレポのレイアウト
 
@@ -141,14 +153,20 @@ mv docs/logging.md docs/architecture/
 │   ├── glossary.md                    # 任意・単発系
 │   ├── _guide-runbook.md              # 任意
 │   ├── (runbook系コンテンツ).md       # 任意
-│   └── postmortem/                    # 任意・累積系
-│       └── README.md
+│   ├── postmortem/                    # 任意・累積系
+│   │   └── README.md
+│   └── plans/                         # 任意・transient系（横断的な変更計画）
+│       ├── README.md
+│       └── draft.md
 └── packages/                          # または apps/, services/, libs/ など
     └── <package-name>/
         └── docs/
             ├── README.md
             ├── research/              # 累積系（パッケージ向け）
             │   └── README.md
+            ├── plans/                 # 任意・transient系（パッケージ固有の変更計画）
+            │   ├── README.md
+            │   └── draft.md
             ├── _guide-design.md       # 主題系（パッケージ固有設計）のガイド
             └── (design系コンテンツ).md # 例: audit-log.md
 ```
@@ -166,8 +184,11 @@ mv docs/logging.md docs/architecture/
 │   ├── glossary.md                    # 任意: システム全体の用語
 │   ├── runbook/                       # 任意
 │   │   └── README.md
-│   └── postmortem/                    # 任意
-│       └── README.md
+│   ├── postmortem/                    # 任意
+│   │   └── README.md
+│   └── plans/                         # 任意・transient系（横断的な変更計画）
+│       ├── README.md
+│       └── draft.md
 └── packages/                          # または apps/, services/, libs/ など
     ├── <package-a>/
     │   └── docs/
@@ -176,8 +197,11 @@ mv docs/logging.md docs/architecture/
     │       │   └── README.md
     │       ├── research/              # このパッケージ向け技術調査
     │       │   └── README.md
-    │       └── adr/                   # 任意: パッケージ固有のADR
-    │           └── README.md
+    │       ├── adr/                   # 任意: パッケージ固有のADR
+    │       │   └── README.md
+    │       └── plans/                 # 任意・transient系（パッケージ固有の変更計画）
+    │           ├── README.md
+    │           └── draft.md
     └── <package-b>/
         └── docs/
             └── ...
@@ -199,6 +223,9 @@ mv docs/logging.md docs/architecture/
 | 用語集 | ルート `docs/glossary.md` 1 つ | パッケージ固有用語も同じファイルにセクション分けして入れる |
 | 運用手順 | ルート `docs/runbook/` 中心 | 個別サービス特有のものはそのサービス配下も可 |
 | ポストモーテム | ルート `docs/postmortem/` | 影響範囲を本文に書く |
+| 実装計画書（複数パッケージ横断） | ルート `docs/plans/` | 共通基盤のリファクタリング、複数サービス連携の追加など |
+| 実装計画書（単一パッケージに閉じる） | `packages/<pkg>/docs/plans/` | そのパッケージ内の機能追加・改修・リファクタリングなど |
+| `plans/draft.md` | 各 `plans/` 配下に独立して持つ | パッケージ単位の作業メモになる。ルートとパッケージで内容が混ざらない |
 
 迷ったらルートに置いて、関連パッケージから相互リンクする。**後でルートに引き上げるよりは、最初からルートに置いてリンクする方が動かしやすい**。
 
@@ -226,6 +253,7 @@ mv docs/logging.md docs/architecture/
   - `design/` 配下または minimum モードでの `docs/` 直下: `<feature-name>.md`（例: `audit-log.md`, `rbac.md`）
   - `architecture/` 配下または minimum モードでの `docs/` 直下: `<topic>.md`（例: `error-handling.md`, `logging.md`）
   - `runbook/` 配下または minimum モードでの `docs/` 直下: `<operation>.md`（例: `deploy.md`, `rollback.md`）
+  - `plans/`: `<主題>.md`（例: `refactor-auth-middleware.md`, `feature-multi-tenant.md`）。日付・連番は不要（消える前提なので時系列重要でない）。`draft.md` だけは固定ファイル名
 - minimum モード専用のガイドファイル名:
   - `_guide-<category>.md`（例: `_guide-architecture.md`, `_guide-design.md`, `_guide-runbook.md`）
   - アンダースコアプレフィックスでファイル一覧の先頭にまとまり、コンテンツと視覚的に区別される
