@@ -33,6 +33,10 @@
       "source": "./doc-toolkit"
     },
     {
+      "name": "knowledge-distill",
+      "source": "./knowledge-distill"
+    },
+    {
       "name": "ai-tuner",
       "source": "./ai-tuner"
     }
