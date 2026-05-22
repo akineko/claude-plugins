@@ -37,6 +37,10 @@
       "source": "./knowledge-distill"
     },
     {
+      "name": "review",
+      "source": "./review"
+    },
+    {
       "name": "ai-tuner",
       "source": "./ai-tuner"
     }
