@@ -43,6 +43,10 @@
     {
       "name": "ai-tuner",
       "source": "./ai-tuner"
+    },
+    {
+      "name": "spec-toolkit",
+      "source": "./spec-toolkit"
     }
   ]
 }
