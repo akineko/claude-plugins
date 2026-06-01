@@ -24,7 +24,7 @@ impact-analysis から委譲される**調査専用**エージェント。事実
 
 ## 今回の検証で確認したこと（2026-05）
 
-実コードベース（`sandbox/favorites-ec-app/`）に対し4焦点で並列調査し、各々が実ファイルパス＋役割/関連度、既存パターン（Context/feature構成/apiClient/requireAuth/BEM）、依存関係、そして**「不明点・前提が崩れる条件」を明記**（CSS未特定・server/index.ts欠落・パスワード検証未実装）し、**設計判断はせず事実収集に徹した**。この「不確実は不確実と書く」が、本体の B2 カバレッジ検算が足場不備を齟齬として拾う材料になった。
+実コードベース（`spec-toolkit/skills/_codebases-workspace/favorites-ec-app/`）に対し4焦点で並列調査し、各々が実ファイルパス＋役割/関連度、既存パターン（Context/feature構成/apiClient/requireAuth/BEM）、依存関係、そして**「不明点・前提が崩れる条件」を明記**（CSS未特定・server/index.ts欠落・パスワード検証未実装）し、**設計判断はせず事実収集に徹した**。この「不確実は不確実と書く」が、本体の B2 カバレッジ検算が足場不備を齟齬として拾う材料になった。
 
 ## 改訂ログ
 
