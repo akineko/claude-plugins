@@ -1,0 +1,26 @@
+{
+  "skill_name": "impact-analysis",
+  "evals": [
+    {
+      "id": 0,
+      "name": "concrete-sso",
+      "prompt": "spec-toolkit/skills/impact-analysis-workspace/iteration-1/inputs/eval-0-sso-feature-options.md を入力として、機能設計書に基づく影響分析書を作成してください。対象コードベースは未提供のため、コードベース調査は論理対象レベルに留めて構いません(その旨を 1. 概要 の調査範囲に明記してください)。出力先は任意のディレクトリで構いません。",
+      "expected_output": "[決定] 中心の SSO 機能設計書から、IdP・対象システム・既存ID/パスワード併存などの前提を踏襲し、影響範囲・設計トピック・設計バッチ・推奨設計順序がまとまった影響分析書。詳細な How(エンドポイント定義/トークン取り扱い/関数シグネチャ)に踏み込んでいない。",
+      "files": ["spec-toolkit/skills/impact-analysis-workspace/iteration-1/inputs/eval-0-sso-feature-options.md"]
+    },
+    {
+      "id": 1,
+      "name": "direction-led-favorites",
+      "prompt": "spec-toolkit/skills/impact-analysis-workspace/iteration-1/inputs/eval-1-favorites-feature-options.md を入力として、機能設計書に基づく影響分析書を作成してください。対象コードベースは未提供のため、コードベース調査は論理対象レベルに留めて構いません(その旨を 1. 概要 の調査範囲に明記してください)。出力先は任意のディレクトリで構いません。",
+      "expected_output": "[方向性] 中心のお気に入り機能設計書から、機能横断トピックを識別し、設計バッチへのグルーピングと推奨設計順序が整理された影響分析書。機能設計書の選定理由を再掲せず、変更点と影響範囲・設計対象に集中している。",
+      "files": ["spec-toolkit/skills/impact-analysis-workspace/iteration-1/inputs/eval-1-favorites-feature-options.md"]
+    },
+    {
+      "id": 2,
+      "name": "mixed-conflict-notification",
+      "prompt": "spec-toolkit/skills/impact-analysis-workspace/iteration-1/inputs/eval-2-notification-feature-options.md を入力として、機能設計書に基づく影響分析書を作成してください。対象コードベースは未提供のため、コードベース調査は論理対象レベルに留めて構いません(その旨を 1. 概要 の調査範囲に明記してください)。出力先は任意のディレクトリで構いません。",
+      "expected_output": "ステークホルダー対立を含む通知改修の機能設計書から、メール基盤維持・段階導入・通知種別分離など複数の設計トピックが識別され、設計バッチへの集約と依存関係に基づく推奨設計順序が示された影響分析書。[要検討] 由来の未確定論点は引き継ぎセクションに整理されている。",
+      "files": ["spec-toolkit/skills/impact-analysis-workspace/iteration-1/inputs/eval-2-notification-feature-options.md"]
+    }
+  ]
+}

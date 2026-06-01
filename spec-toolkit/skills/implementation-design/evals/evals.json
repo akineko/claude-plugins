@@ -1,0 +1,22 @@
+{
+  "skill_name": "implementation-design",
+  "note": "入力は impact-analysis の成果物(影響分析書)。1スキル実行=1バッチのため、各evalは対象バッチを1つ指定する。コードベース未提供時は契約レベルの論理設計に留める。",
+  "evals": [
+    {
+      "id": 0,
+      "name": "favorites-B1-data-foundation",
+      "prompt": "影響分析書 spec-toolkit/skills/impact-analysis-workspace/wave1/eval-1-favorites/with_skill/outputs/impact-analysis.md を入力として、設計バッチ B1(お気に入りデータ基盤)を対象に実装設計書を作成してください。",
+      "target_batch": "B1",
+      "files": ["spec-toolkit/skills/impact-analysis-workspace/wave1/eval-1-favorites/with_skill/outputs/impact-analysis.md"],
+      "expected_output": "B1のみを対象とした実装設計書。骨格(主要意思決定/概念モデル/責務構造/トピック別方針)→契約レベルの詳細設計→TDDフェーズ計画。実装コード・擬似コードは含まない。批評の採否は文書に残さない。"
+    },
+    {
+      "id": 1,
+      "name": "notification-B1-domain-foundation",
+      "prompt": "影響分析書 spec-toolkit/skills/impact-analysis-workspace/wave1/eval-2-notification/with_skill/outputs/impact-analysis.md を入力として、設計バッチ B1(通知ドメイン基盤)を対象に実装設計書を作成してください。",
+      "target_batch": "B1",
+      "files": ["spec-toolkit/skills/impact-analysis-workspace/wave1/eval-2-notification/with_skill/outputs/impact-analysis.md"],
+      "expected_output": "B1のみを対象とした実装設計書。骨格→契約レベルの詳細設計→TDDフェーズ計画。1実行=1バッチで他バッチに踏み込まない。契約レベルで止め実装コードを書かない。"
+    }
+  ]
+}

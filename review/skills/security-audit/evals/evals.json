@@ -1,0 +1,13 @@
+{
+  "skill_name": "security-audit",
+  "evals": [
+    {
+      "id": 0,
+      "name": "full-repo-audit",
+      "prompt": "review/skills/security-audit-workspace/fixture/ 配下のリポジトリ全体をセキュリティ監査して。各コンポーネントに合ったフレームワークで準拠状況を見てほしい。",
+      "expected_output": "4コンポーネント（services/api=Web API, services/chat=LLM組込み, apps/mobile=モバイル, infra=IaC AWS）を識別し、それぞれ API Top10/ASVS・LLM Top10・MASVS・CIS AWS を割り当てて監査。カバレッジ・マトリクス＋違反詳細＋未確認＋出典のレポート。植え込んだ違反（review/skills/security-audit-workspace/fixture-ground-truth.md）を概ね検出する。",
+      "files": ["review/skills/security-audit-workspace/fixture/"],
+      "assertions": []
+    }
+  ]
+}

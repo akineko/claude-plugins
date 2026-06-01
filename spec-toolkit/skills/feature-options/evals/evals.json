@@ -1,0 +1,26 @@
+{
+  "skill_name": "feature-options",
+  "evals": [
+    {
+      "id": 0,
+      "name": "concrete-sso",
+      "prompt": "spec-toolkit/skills/request-spec-workspace/iteration-1/eval-0-concrete-sso/with_skill/outputs/request-spec.md を入力として、要求仕様書に基づく機能設計書を作成してください。",
+      "expected_output": "[決定]中心+[方向性]+[要検討]混在で、段階展開・併存運用などインフラ寄りの要求に対しユーザー目線の選定案+主要却下案がまとまった機能設計書",
+      "files": ["spec-toolkit/skills/request-spec-workspace/iteration-1/eval-0-concrete-sso/with_skill/outputs/request-spec.md"]
+    },
+    {
+      "id": 1,
+      "name": "direction-only-favorites",
+      "prompt": "spec-toolkit/skills/request-spec-workspace/iteration-1/eval-1-direction-only-favorites/with_skill/outputs/request-spec.md を入力として、要求仕様書に基づく機能設計書を作成してください。",
+      "expected_output": "[方向性]中心の要求から、ユーザー目線の選定案+主要却下案がまとまった機能設計書",
+      "files": ["spec-toolkit/skills/request-spec-workspace/iteration-1/eval-1-direction-only-favorites/with_skill/outputs/request-spec.md"]
+    },
+    {
+      "id": 2,
+      "name": "mixed-conflict-notification",
+      "prompt": "spec-toolkit/skills/request-spec-workspace/iteration-1/eval-2-mixed-conflict-notification/with_skill/outputs/request-spec.md を入力として、要求仕様書に基づく機能設計書を作成してください。",
+      "expected_output": "部門間の意見対立を含む[決定]+[方向性]+[要検討]混在の要求に対し、調停案+却下理由が記述された機能設計書",
+      "files": ["spec-toolkit/skills/request-spec-workspace/iteration-1/eval-2-mixed-conflict-notification/with_skill/outputs/request-spec.md"]
+    }
+  ]
+}
