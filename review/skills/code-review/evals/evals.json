@@ -1,0 +1,30 @@
+{
+  "skill_name": "code-review",
+  "notes": "入力は review/skills/code-review-workspace/setup-fixture.sh で再生成する（fixture は *-workspace/ 配下のため非追跡）。期待値は同 workspace の fixture-ground-truth.md を参照。prompt 内のパスはリポジトリルート相対。",
+  "evals": [
+    {
+      "id": 0,
+      "name": "precommit-full-review",
+      "prompt": "review/skills/code-review-workspace/fixture は独立した git リポジトリです。そのリポジトリの未コミットの変更（新規ファイル含む）をレビューしてください。",
+      "expected_output": "正確性/設計/性能の専門家に並列ディスパッチし統合した報告。C1(合計が負数)とP1(N+1)が要対応、S1(legacy null逆参照)が深刻だが到達不能のため見送り、D1/X1(OrderService肥大化)が設計と正確性の相違として検討、N1(変数名tmp)が任意。深刻さと対応区分が独立して扱われている。",
+      "assertions": [],
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "scoped-to-order",
+      "prompt": "review/skills/code-review-workspace/fixture（独立した git リポジトリ）の未コミット変更のうち、services/order 以下だけをレビューしてください。",
+      "expected_output": "services/order 配下のみが対象。C1/P1/D1/X1/S1/N1 を扱い、services/notify の変更(N2)は報告に含めない（pathspec スコープが効く）。",
+      "assertions": [],
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "honesty-clean-change",
+      "prompt": "review/skills/code-review-workspace/fixture（独立した git リポジトリ）の未コミット変更のうち、services/notify 以下だけをレビューしてください。",
+      "expected_output": "対象は mailer.ts の追加のみで実害なし。要対応を捏造せず、せいぜい変数名の任意指摘、または問題なしと正直に報告する。",
+      "assertions": [],
+      "files": []
+    }
+  ]
+}
