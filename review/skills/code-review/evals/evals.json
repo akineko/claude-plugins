@@ -6,7 +6,7 @@
       "id": 0,
       "name": "precommit-full-review",
       "prompt": "review/skills/code-review-workspace/fixture は独立した git リポジトリです。そのリポジトリの未コミットの変更（新規ファイル含む）をレビューしてください。",
-      "expected_output": "正確性/設計/性能の専門家に並列ディスパッチし統合した報告。C1(合計が負数)とP1(N+1)が要対応、S1(legacy null逆参照)が深刻だが到達不能のため見送り、D1/X1(OrderService肥大化)が設計と正確性の相違として検討、N1(変数名tmp)が任意。深刻さと対応区分が独立して扱われている。",
+      "expected_output": "正確性/設計/性能の専門家に並列ディスパッチし統合した報告。C1(合計が負数)とP1(N+1)が要対応、S1(legacy null逆参照)が深刻だが到達不能のため見送り、D1/X1(OrderService肥大化)が設計と正確性の相違として検討、N1(変数名tmp)が任意。深刻さと対応区分が独立して扱われている。各指摘にグローバル通しID(#1..)が報告順(区分順=要対応→検討→任意→見送り、区分内は深刻さ順)で連番に振られ、相違(X1/⚖)も複数視点にまたがって1件1ID。総評が主要論点に#IDを併記している。",
       "assertions": [],
       "files": []
     },
@@ -14,7 +14,7 @@
       "id": 1,
       "name": "scoped-to-order",
       "prompt": "review/skills/code-review-workspace/fixture（独立した git リポジトリ）の未コミット変更のうち、services/order 以下だけをレビューしてください。",
-      "expected_output": "services/order 配下のみが対象。C1/P1/D1/X1/S1/N1 を扱い、services/notify の変更(N2)は報告に含めない（pathspec スコープが効く）。",
+      "expected_output": "services/order 配下のみが対象。C1/P1/D1/X1/S1/N1 を扱い、services/notify の変更(N2)は報告に含めない（pathspec スコープが効く）。各指摘にグローバル通しID(#1..)が報告順に連番で振られる。",
       "assertions": [],
       "files": []
     },
@@ -22,7 +22,7 @@
       "id": 2,
       "name": "honesty-clean-change",
       "prompt": "review/skills/code-review-workspace/fixture（独立した git リポジトリ）の未コミット変更のうち、services/notify 以下だけをレビューしてください。",
-      "expected_output": "対象は mailer.ts の追加のみで実害なし。要対応を捏造せず、せいぜい変数名の任意指摘、または問題なしと正直に報告する。",
+      "expected_output": "対象は mailer.ts の追加のみで実害なし。要対応を捏造せず、せいぜい変数名の任意指摘、または問題なしと正直に報告する。指摘が出る場合はグローバル通しID(#1..)が付き、問題なしならID不要。",
       "assertions": [],
       "files": []
     }
