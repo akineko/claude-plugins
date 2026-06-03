@@ -64,3 +64,4 @@
 - 2026-05-30: 初版。scope×framework 分割・汎用 auditor・実行時フェッチ・ハイブリッドレポートで作成（iteration-1 検出率 ~98%）。
 - 2026-05-30: iteration-2 で要件ベース重複回避（API×ASVS）を追記。
 - 2026-05-31: 実運用フィードバック反映 — 出力をファイル＋要約に分離、レポートからローカル絶対パス排除、出力先を `reports/` サブディレクトリから `docs/security-audit/<日付>-report.md` 直下へ（対応表と 1:1）。
+- 2026-06-03: 手動呼び出し前提（`disable-model-invocation`）に合わせ description を簡潔化。自動起動しない以上トリガーフレーズ列挙は役割を失うため廃し、補完メニューの可読性と兄弟スキル識別（security-review / audit-tracking との棲み分け）を優先。対象の指定形式は `argument-hint` に移譲（情報の単一箇所化）。

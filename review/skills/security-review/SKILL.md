@@ -1,6 +1,7 @@
 ---
 name: security-review
-description: コード差分・PR・ファイル／ディレクトリに対して、injection／認証認可／機密情報の3攻撃面を独立したサブエージェントとして並列実行し、悪用可能性（exploitability）で評価したマークダウンレビューレポートを生成するスキル。「セキュリティレビューして」「PR をセキュリティ観点で見て」「脆弱性スキャン」「/security-review」と依頼されたときに明示起動する。コード修正は行わず、レポートのみを返す。
+description: コード差分・PR・ファイルを injection／認証認可／機密情報の3攻撃面で並列レビューし、悪用可能性（exploitability）で評価したレポートを生成する。差分単位の脆弱性レビュー用。広範囲のフレームワーク準拠監査は security-audit。
+argument-hint: "[対象 (未指定=自動検出 / staged / unstaged / 範囲 / PR番号 / パス)]"
 disable-model-invocation: true
 ---
 
@@ -19,10 +20,6 @@ disable-model-invocation: true
 | リスクレベルでの総合評価とレポート出力 | 暗黙起動 |
 
 並列起動するのは「互いの結果に引きずられない独立判断」を確保するため。攻撃面ごとに視点が異なるので、直列で回すと後段の判定が前段に汚染される。同一レスポンス内で並列起動する。
-
-## 暗黙起動しない理由
-
-3つのサブエージェントを並列起動する重い処理を伴うため、`disable-model-invocation: true` を frontmatter に設定し、明示コマンド・明示依頼のみで起動する。
 
 ## code-review との関係
 
