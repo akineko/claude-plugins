@@ -25,7 +25,7 @@ disable-model-invocation: true
 [[security-review]] と棲み分ける。違いは以下のとおり:
 
 - **対象**: security-review はコード差分・PR（変化）。本スキルはリポジトリ全体・サービス単位（広範囲の現状）。
-- **分割軸**: security-review は攻撃面（injection/authz/secrets）の固定 3 エージェント。本スキルは〈コンポーネント×フレームワーク〉の動的な作業項目。
+- **分割軸**: security-review は攻撃面別の専門エージェント（injection / access-control / data-protection / logic-abuse）。本スキルは〈コンポーネント×フレームワーク〉の動的な作業項目。
 - **評価軸**: security-review は exploitability（悪用可能性）。本スキルは公開フレームワークへの準拠状況（合致/違反/非該当/未確認）。
 - **フレームワークの持ち方**: security-review はエージェントの知識ベース。本スキルは名称＋参照元だけを対応表に持ち、実行時フェッチでバージョン追従する。
 

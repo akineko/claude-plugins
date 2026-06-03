@@ -1,0 +1,53 @@
+{
+  "skill_name": "security-review",
+  "note": "フィクスチャは review/skills/security-review-workspace/setup-fixture.sh <scenario> <dest> で生成（gitignore 配下、未コミット）。正解は同 workspace の fixture-ground-truth.md。prompt は実ユーザーの自然な依頼文で、フィクスチャ準備と cwd 設定は eval ハーネスが付与する。",
+  "evals": [
+    {
+      "id": 0,
+      "name": "precommit-multi-surface",
+      "scenario": "precommit",
+      "review_target": "引数なし＝コミット前（git diff HEAD ＋未追跡）",
+      "prompt": "コミットする前にセキュリティ的にまずいところがないか見てほしい。今の変更をセキュリティレビューして。",
+      "expected_output": "4攻撃面の本物（/search のSQLi、/:id のIDOR、ハードコードStripe秘密鍵、クーポン重複適用ロジック）を検出。総合判定🔴、SEC通し番号、各指摘に深刻度・確信度。チャットに出力（ファイルを作らない）。",
+      "assertions": [
+        { "text": "/search の文字列連結による SQLi を指摘している" },
+        { "text": "/:id の所有者チェック削除による IDOR を指摘している" },
+        { "text": "src/payments.ts のハードコードされた Stripe 秘密鍵を指摘している" },
+        { "text": "apply-coupon のクーポン重複適用（業務ロジック悪用）を指摘している" },
+        { "text": "総合判定が 🔴 マージ非推奨相当である" },
+        { "text": "各指摘に通しID（SEC-N）と深刻度・確信度が付与されている" },
+        { "text": "レポートをチャットに出力しファイルを作成していない" }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "commit-target-resolution",
+      "scenario": "commit",
+      "review_target": "直近コミット feat: bulk order export endpoint（git show HEAD）",
+      "prompt": "さっき入れた bulk export のコミットをセキュリティレビューしてほしい。直近のコミットが対象。",
+      "expected_output": "対象コミットの差分を解決。export の管理者認可欠如とzipファイル名のコマンドインジェクションを検出。定数補間クエリ ${EXPORT_TABLE} は Critical SQLi として誤報しない（却下/Info/低確信）。",
+      "assertions": [
+        { "text": "レビュー対象として直近コミット（bulk export）の差分を解決している" },
+        { "text": "export エンドポイントの管理者認可欠如（任意認証ユーザーが全注文取得）を指摘している" },
+        { "text": "zip ファイル名（req.query.name）へのコマンドインジェクションを指摘している" },
+        { "text": "サーバー側定数の ${EXPORT_TABLE} 補間を Critical/High の SQLi として誤報していない" }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "false-positive-control",
+      "scenario": "fp-control",
+      "review_target": "引数なし＝コミット前（一見危険だが安全な4件＋本物1件）",
+      "prompt": "コミット前にセキュリティレビューして。",
+      "expected_output": "本物（Math.random によるリセットトークンの弱い乱数）を検出しつつ、4つの安全箇所（requireAdmin配下のadmin/report、ホワイトリスト定数のORDER BY、固定コマンドのexecSync、publishable key）を本物の指摘として報告しない（却下に整理）。",
+      "assertions": [
+        { "text": "src/tokens.ts の Math.random によるリセットトークン（弱い乱数）を検出している" },
+        { "text": "admin/report を requireAdmin 配下と見抜き authz 欠如として誤報していない" },
+        { "text": "ホワイトリスト定数の ORDER BY ${column} を SQLi として誤報していない" },
+        { "text": "固定コマンドの execSync（runBackup）をコマンドインジェクションとして誤報していない" },
+        { "text": "publishable key（pk_test_）を秘密情報漏洩として誤報していない" },
+        { "text": "誤検知候補が却下セクションに整理される、または本物の指摘として挙がっていない" }
+      ]
+    }
+  ]
+}
