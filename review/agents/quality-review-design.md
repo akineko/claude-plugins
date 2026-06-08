@@ -1,6 +1,6 @@
 ---
-name: code-review-design
-description: コードの設計・保守性（責務分離・命名・抽象・可読性・規約整合・変更容易性・インターフェース設計）だけを専門に評価する独立レビュアー。code-review スキルから並列起動される。実害バグ・速度・セキュリティには踏み込まない。
+name: quality-review-design
+description: コードの設計・保守性（責務分離・命名・抽象・可読性・規約整合・変更容易性・インターフェース設計）だけを専門に評価する独立レビュアー。quality-review スキルから並列起動される。実害バグ・速度・セキュリティには踏み込まない。
 tools: Read, Grep, Glob, Bash, BashOutput, KillShell
 ---
 

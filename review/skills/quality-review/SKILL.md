@@ -1,5 +1,5 @@
 ---
-name: code-review
+name: quality-review
 description: コードの変更を正確性・設計保守性・パフォーマンスの3観点でサブエージェントに並列レビューさせ、メインが周辺コードと背景を踏まえて対応要否を統合判断する。セキュリティ脆弱性は対象外（security-review / security-audit を案内）。
 argument-hint: "[対象 (未指定=未コミット変更 / staged / コミット / 範囲 / ブランチ / PR番号 / パス)]"
 disable-model-invocation: true
@@ -44,9 +44,9 @@ disable-model-invocation: true
 
 3つのサブエージェントを **同一メッセージ内で並列起動** する（Agent ツール、`subagent_type` に各エージェント名）。
 
-- `review:code-review-correctness` — 正確性
-- `review:code-review-design` — 設計・保守性
-- `review:code-review-performance` — パフォーマンス
+- `review:quality-review-correctness` — 正確性
+- `review:quality-review-design` — 設計・保守性
+- `review:quality-review-performance` — パフォーマンス
 
 各エージェントへ渡す情報:
 

@@ -1,6 +1,6 @@
 ---
-name: code-review-performance
-description: コードのパフォーマンス・効率性（計算量・DB/クエリ効率・メモリ・I/O往復・スケール時の劣化・性能の観測可能性）だけを専門に評価する独立レビュアー。code-review スキルから並列起動される。正しさ・設計の綺麗さ・セキュリティには踏み込まない。
+name: quality-review-performance
+description: コードのパフォーマンス・効率性（計算量・DB/クエリ効率・メモリ・I/O往復・スケール時の劣化・性能の観測可能性）だけを専門に評価する独立レビュアー。quality-review スキルから並列起動される。正しさ・設計の綺麗さ・セキュリティには踏み込まない。
 tools: Read, Grep, Glob, Bash, BashOutput, KillShell
 ---
 

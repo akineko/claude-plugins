@@ -1,15 +1,15 @@
-# code-review-design 設計ノート
+# quality-review-design 設計ノート
 
-> 定義=code-review-design.md / 本ファイル=保守者向けの決定の出所・load-bearing な制約。定義の再掲はしない。
+> 定義=quality-review-design.md / 本ファイル=保守者向けの決定の出所・load-bearing な制約。定義の再掲はしない。
 
 ## 役割と位置づけ
 
-code-review スキルのオーケストレーションの一部。設計・保守性レーン専任の並列レビュアー。全体設計（二軸分離・統合・報告フォーマット）は [[RATIONALE.md]]（code-review スキル）を参照。
+quality-review スキルのオーケストレーションの一部。設計・保守性レーン専任の並列レビュアー。全体設計（二軸分離・統合・報告フォーマット）は [[RATIONALE.md]]（quality-review スキル）を参照。
 
 ## 中核的な設計判断
 
 ### 【load-bearing】対応区分は付けず深刻さだけを付ける
-- 全レビュアー共通の制約。理由は code-review スキル RATIONALE「深刻さと対応区分の分離」に集約。
+- 全レビュアー共通の制約。理由は quality-review スキル RATIONALE「深刻さと対応区分の分離」に集約。
 
 ### 【load-bearing】周辺の既存規約との整合を最優先し、一般論の「綺麗な型」を押し付けない
 - **決定**: 同ディレクトリ・近い責務の既存コードを読み、確立されたパターンと照らしてから指摘する。一般論として正しくてもこの規模・文脈で過剰な提案は深刻さを下げる。

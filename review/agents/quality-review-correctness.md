@@ -1,6 +1,6 @@
 ---
-name: code-review-correctness
-description: コードの正確性（ロジックの誤り・境界条件・例外/エラー処理・データ整合性・並行性・契約違反）だけを専門に評価する独立レビュアー。code-review スキルから並列起動される。設計の綺麗さ・速度・セキュリティには踏み込まない。
+name: quality-review-correctness
+description: コードの正確性（ロジックの誤り・境界条件・例外/エラー処理・データ整合性・並行性・契約違反）だけを専門に評価する独立レビュアー。quality-review スキルから並列起動される。設計の綺麗さ・速度・セキュリティには踏み込まない。
 tools: Read, Grep, Glob, Bash, BashOutput, KillShell
 ---
 

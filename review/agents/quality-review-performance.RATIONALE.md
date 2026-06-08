@@ -1,15 +1,15 @@
-# code-review-performance 設計ノート
+# quality-review-performance 設計ノート
 
-> 定義=code-review-performance.md / 本ファイル=保守者向けの決定の出所・load-bearing な制約。定義の再掲はしない。
+> 定義=quality-review-performance.md / 本ファイル=保守者向けの決定の出所・load-bearing な制約。定義の再掲はしない。
 
 ## 役割と位置づけ
 
-code-review スキルのオーケストレーションの一部。パフォーマンス・効率性レーン専任の並列レビュアー。全体設計（二軸分離・統合・報告フォーマット）は [[RATIONALE.md]]（code-review スキル）を参照。
+quality-review スキルのオーケストレーションの一部。パフォーマンス・効率性レーン専任の並列レビュアー。全体設計（二軸分離・統合・報告フォーマット）は [[RATIONALE.md]]（quality-review スキル）を参照。
 
 ## 中核的な設計判断
 
 ### 【load-bearing】対応区分は付けず深刻さだけを付ける
-- 全レビュアー共通の制約。理由は code-review スキル RATIONALE「深刻さと対応区分の分離」に集約。
+- 全レビュアー共通の制約。理由は quality-review スキル RATIONALE「深刻さと対応区分の分離」に集約。
 
 ### 【load-bearing】ホット/コールドパスを見極め、推測の最適化を避ける
 - **決定**: 呼ばれる頻度・データ規模の前提を読みに行き、ホットパス（高頻度・大規模）か起動時1回の小規模かを見極める。根拠（規模・頻度）が無い指摘は深刻さを下げる。

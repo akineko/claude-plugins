@@ -1,11 +1,11 @@
 {
-  "skill_name": "code-review",
-  "notes": "入力は review/skills/code-review-workspace/setup-fixture.sh で再生成する（fixture は *-workspace/ 配下のため非追跡）。期待値は同 workspace の fixture-ground-truth.md を参照。prompt 内のパスはリポジトリルート相対。",
+  "skill_name": "quality-review",
+  "notes": "入力は review/skills/quality-review-workspace/setup-fixture.sh で再生成する（fixture は *-workspace/ 配下のため非追跡）。期待値は同 workspace の fixture-ground-truth.md を参照。prompt 内のパスはリポジトリルート相対。",
   "evals": [
     {
       "id": 0,
       "name": "precommit-full-review",
-      "prompt": "review/skills/code-review-workspace/fixture は独立した git リポジトリです。そのリポジトリの未コミットの変更（新規ファイル含む）をレビューしてください。",
+      "prompt": "review/skills/quality-review-workspace/fixture は独立した git リポジトリです。そのリポジトリの未コミットの変更（新規ファイル含む）をレビューしてください。",
       "expected_output": "正確性/設計/性能の専門家に並列ディスパッチし統合した報告。C1(合計が負数)とP1(N+1)が要対応、B1(tax-table の未知regionでNaN・report.ts経由で発火する既存バグ)が別対応(範囲外＝直すべきだが今回の差分外)、S1(legacy null逆参照)が深刻だが到達不能で見送り、B3(税の丸め方向が会計方針依存)が要相談、D1/X1(OrderService肥大化 vs トランザクション不可分)が相違として要相談か別対応、N1(変数名tmp)・B2(¥整形重複)が任意。区分が merit で定義され『別PR』の曖昧表現に本質判断が埋もれていない。深刻さと対応区分が独立。各指摘にグローバル通しID(#1..)が報告順(区分順=要対応→別対応→要相談→任意→見送り、区分内は深刻さ順)で連番、相違(⚖)も1件1ID。総評が主要論点に#IDを併記。",
       "assertions": [],
       "files": []
@@ -13,7 +13,7 @@
     {
       "id": 1,
       "name": "scoped-to-order",
-      "prompt": "review/skills/code-review-workspace/fixture（独立した git リポジトリ）の未コミット変更のうち、services/order 以下だけをレビューしてください。",
+      "prompt": "review/skills/quality-review-workspace/fixture（独立した git リポジトリ）の未コミット変更のうち、services/order 以下だけをレビューしてください。",
       "expected_output": "services/order 配下のみが対象。C1/P1/D1/X1/S1/N1 を扱い、services/notify の変更(N2)は報告に含めない（pathspec スコープが効く）。各指摘にグローバル通しID(#1..)が報告順に連番で振られる。",
       "assertions": [],
       "files": []
@@ -21,7 +21,7 @@
     {
       "id": 2,
       "name": "honesty-clean-change",
-      "prompt": "review/skills/code-review-workspace/fixture（独立した git リポジトリ）の未コミット変更のうち、services/notify 以下だけをレビューしてください。",
+      "prompt": "review/skills/quality-review-workspace/fixture（独立した git リポジトリ）の未コミット変更のうち、services/notify 以下だけをレビューしてください。",
       "expected_output": "対象は mailer.ts の追加のみで実害なし。要対応を捏造せず、せいぜい変数名の任意指摘、または問題なしと正直に報告する。指摘が出る場合はグローバル通しID(#1..)が付き、問題なしならID不要。",
       "assertions": [],
       "files": []
@@ -29,7 +29,7 @@
     {
       "id": 3,
       "name": "merit-scope-discrimination",
-      "prompt": "review/skills/code-review-workspace/fixture（独立した git リポジトリ）に、請求書行を組み立てる services/billing/invoice.ts を新規追加しました。この変更をレビューしてください（services/billing 配下が対象）。",
+      "prompt": "review/skills/quality-review-workspace/fixture（独立した git リポジトリ）に、請求書行を組み立てる services/billing/invoice.ts を新規追加しました。この変更をレビューしてください（services/billing 配下が対象）。",
       "expected_output": "対象は services/billing/invoice.ts（新規）。invoice.ts が依存する共有ヘルパ lookupTaxRate(tax-table.ts) は未知regionでundefined→NaNを返す実害バグで、既存 billing.ts(quoteForRequest)→report.ts(taxedTotal) が外部入力regionを素通しするため到達可能。これをB1=別対応(範囲外＝直すべきだが修正は共有ヘルパ＋既存呼び出し元をまたぐ横断修正でinvoice追加の目的外)とし、なぜ範囲外かを添える。到達可能なので見送り(到達不能)ではない。B2(¥整形重複・文字列連結)は任意だが merit を言い切り『やるなら別PR』で濁さない。B3(税の丸め方向が会計方針依存・docs規定なし)は要相談または任意。invoice.ts本体は'JP'固定で安全なので要対応バグを捏造しない。各指摘に通しID。",
       "assertions": [],
       "files": [],

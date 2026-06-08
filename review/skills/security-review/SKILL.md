@@ -1,6 +1,6 @@
 ---
 name: security-review
-description: コード差分・PR・コミット範囲を対象に、攻撃面別の専門サブエージェント（injection / access-control / data-protection / logic-abuse）で悪用可能性を並列レビューし、メインが周辺コードと文脈を踏まえて誤検知を裁定し総合判定する差分特化のセキュリティレビュー。リポジトリ全体のフレームワーク準拠監査は security-audit、コード品質レビューは code-review が担当。
+description: コード差分・PR・コミット範囲を対象に、攻撃面別の専門サブエージェント（injection / access-control / data-protection / logic-abuse）で悪用可能性を並列レビューし、メインが周辺コードと文脈を踏まえて誤検知を裁定し総合判定する差分特化のセキュリティレビュー。リポジトリ全体のフレームワーク準拠監査は security-audit、コード品質レビューは quality-review が担当。
 argument-hint: "[対象: 未指定=コミット前 / staged / unstaged / <sha> / <a>..<b> / <branch> / PR番号 / 末尾に -- <path> でパス絞り込み]"
 disable-model-invocation: true
 ---
@@ -23,12 +23,12 @@ disable-model-invocation: true
 | やること | やらないこと |
 |---------|------------|
 | 対象差分の解決（コミット前 / staged / コミット / 範囲 / ブランチ / PR / パス絞り込み） | リポジトリ全体の網羅監査（security-audit が担当） |
-| 攻撃面別専門家の並列起動 | コード品質・設計・性能のレビュー（code-review が担当） |
+| 攻撃面別専門家の並列起動 | コード品質・設計・性能のレビュー（quality-review が担当） |
 | 専門家結果の統合・重複排除・見解相違の裁定 | 公開フレームワークへの準拠判定（security-audit が担当） |
 | 周辺コード・文脈に基づく誤検知の除外と実リスク評価 | コード修正・パッチ適用（指摘と修正案の提示まで） |
 | 総合判定とレポート出力 | 暗黙起動（手動 `/security-review` のみ） |
 
-兄弟スキル：差分のコード品質は **code-review**、リポジトリ全体のフレームワーク準拠監査は **security-audit**、検出後の対応管理は **audit-tracking**。
+兄弟スキル：差分のコード品質は **quality-review**、リポジトリ全体のフレームワーク準拠監査は **security-audit**、検出後の対応管理は **audit-tracking**。
 
 ---
 
