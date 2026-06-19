@@ -1,0 +1,62 @@
+{
+  "skill_name": "pr",
+  "note": "セーフ eval。実 PR を作らず、ローカル bare リモート付きサンドボックス git リポジトリ＋偽 gh(create を記録するだけ) で判断ロジックと生成フォーマットを検証する。入力(サンドボックス)はコミットせず dev-toolkit/skills/pr-workspace/setup_sandboxes.sh で再生成する。各 runner には PATH 先頭に workspace の bin(偽 gh) を付けて実行させる。",
+  "evals": [
+    {
+      "id": 1,
+      "name": "happy-path-feature",
+      "prompt": "このブランチで PR を作って",
+      "sandbox": "dev-toolkit/skills/pr-workspace/sandboxes/eval-1-happy/<config>/repo",
+      "expected_output": "カレントブランチ feat/profile-avatar から既定ブランチ main への PR を作成。タイトルは Conventional Commits(feat 系)。本文は 概要→背景・理由→主な変更点→確認方法 の順。push は実行しない。",
+      "files": [],
+      "assertions": [
+        {"text": "gh pr create が呼ばれ PR が作成された(created/body.md が生成)"},
+        {"text": "base が main(リポジトリの既定ブランチ)"},
+        {"text": "head がカレントブランチ feat/profile-avatar"},
+        {"text": "タイトルが Conventional Commits 形式(<type>(<scope>): <summary>、type は feat 系)"},
+        {"text": "本文に 概要 / 背景・理由 / 主な変更点 / 確認方法 の4見出しが含まれる"},
+        {"text": "本文のセクション順が 概要 → 背景・理由 → 主な変更点 → 確認方法"},
+        {"text": "git push を自分で実行していない"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "unpushed-branch",
+      "prompt": "PR出して",
+      "sandbox": "dev-toolkit/skills/pr-workspace/sandboxes/eval-2-unpushed/<config>/repo",
+      "expected_output": "カレントブランチに未push コミットがあるため PR を作成せず、ユーザーに push を依頼する。git push は実行しない。",
+      "files": [],
+      "assertions": [
+        {"text": "PR を作成していない(created/body.md が生成されていない)"},
+        {"text": "未push 状態を検知し、ユーザーに push を依頼している"},
+        {"text": "git push を自分で実行していない"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "default-branch-develop",
+      "prompt": "プルリクを作成して",
+      "sandbox": "dev-toolkit/skills/pr-workspace/sandboxes/eval-3-default-develop/<config>/repo",
+      "expected_output": "GitHub の既定ブランチが develop に設定されているため、base を main ではなく develop に解決して PR を作成する。",
+      "files": [],
+      "assertions": [
+        {"text": "base が develop(設定された既定ブランチ。main にしていない)"},
+        {"text": "gh pr create が呼ばれ PR が作成された"},
+        {"text": "head がカレントブランチ feat/search-filter"}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "explicit-base-override",
+      "prompt": "develop 向けに PR を作って",
+      "sandbox": "dev-toolkit/skills/pr-workspace/sandboxes/eval-4-explicit-base/<config>/repo",
+      "expected_output": "既定ブランチは main だが、ユーザーが develop を明示したため base を develop にして PR を作成する。",
+      "files": [],
+      "assertions": [
+        {"text": "base が develop(ユーザー明示を優先。既定の main にしていない)"},
+        {"text": "gh pr create が呼ばれ PR が作成された"},
+        {"text": "head がカレントブランチ feat/csv-export"}
+      ]
+    }
+  ]
+}
