@@ -19,8 +19,15 @@
       "id": 2,
       "name": "mixed-conflict-notification",
       "prompt": "spec-toolkit/skills/request-spec-workspace/iteration-1/eval-2-mixed-conflict-notification/with_skill/outputs/request-spec.md を入力として、要求仕様書に基づく機能設計書を作成してください。",
-      "expected_output": "部門間の意見対立を含む[決定]+[方向性]+[要検討]混在の要求に対し、調停案+却下理由が記述された機能設計書",
+      "expected_output": "部門間で対立している論点(プッシュ通知の採否など合意形成を要する[要検討])は選定を保留し選択肢と確認ポイント/引き継ぎに整理され、それ以外の[決定]+[方向性]の要求には選定案+主要却下案がまとまった機能設計書",
       "files": ["spec-toolkit/skills/request-spec-workspace/iteration-1/eval-2-mixed-conflict-notification/with_skill/outputs/request-spec.md"]
+    },
+    {
+      "id": 3,
+      "name": "lifecycle-gap",
+      "prompt": "spec-toolkit/skills/feature-options-workspace/iteration-4/eval-lifecycle-gap/inputs/request-spec.md を入力として、要求仕様書に基づく機能設計書を作成してください。",
+      "expected_output": "閲覧側の要求(スキャン閲覧・マップナビゲーション)しか語らない要求仕様書から、スキャンデータの取り込み・登録、マップ/ピンの作成・管理、CSV一括登録した利用者のログイン認証といった成立に不可欠な前提機能が機能として補われ、各機能に関連要求が紐づく機能設計書",
+      "files": ["spec-toolkit/skills/feature-options-workspace/iteration-4/eval-lifecycle-gap/inputs/request-spec.md"]
     }
   ]
 }
