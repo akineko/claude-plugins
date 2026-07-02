@@ -1,0 +1,43 @@
+{
+  "skill_name": "phase-implementation",
+  "note": "実装 eval は対象コードベースを変更するため、共有入力 spec-toolkit/skills/_codebases-workspace/favorites-ec-app を実行時に各 run ディレクトリへコピーし、入力の実装設計書を <codebase>/docs/plans/favorites/ に配置してから実行する。プロンプト中の <codebase> はコピー先コードベースの絶対パスに置換する。npm 依存は実行前に <codebase> で npm install しておく。",
+  "evals": [
+    {
+      "id": 0,
+      "name": "phase1-minimal-vertical-slice",
+      "prompt": "実装設計書 <codebase>/docs/plans/favorites/implementation-design-favorite-data-foundation.md のフェーズ 1 を実装してください。対象プロジェクトは <codebase> です。",
+      "target_phase": 1,
+      "files": [
+        "spec-toolkit/skills/implementation-design-workspace/wave1/eval-0-favorites/with_skill/outputs/implementation-design-favorite-data-foundation.md",
+        "spec-toolkit/skills/_codebases-workspace/favorites-ec-app"
+      ],
+      "expected_output": "フェーズ1(登録・解除・状態判定の最小縦断)だけが実装され、テストが pass する。favorite_entries 相当の永続化と (user_id, product_id) の一意性、登録/解除の冪等性、Unauthorized / ProductNotFound が契約(3.2/3.4)通りに実装される。フェーズ2/3 の範囲(listFavorites・意図イベント)を先取りしない。実装はサブエージェントに委譲され、独立した検証(テスト実行・契約整合)を経て、完了報告に全フェーズ中の位置・テスト結果・契約に関する報告が含まれる。",
+      "assertions": [
+        "テストが全緑: codebase で npx vitest run を実行すると、追加されたテストを含む全テストが pass する",
+        "契約: (userId, productId) の重複登録不可（一意性）が実装され、テストで固定されている",
+        "契約: 登録・解除が冪等（既登録への addFavorite / 未登録への removeFavorite がエラーにならない）で、テストで固定されている",
+        "契約: Unauthorized（ユーザー未確定）と ProductNotFound（存在しない商品の登録）のエラーが実装されている",
+        "スコープ遵守: フェーズ2/3 の範囲（listFavorites 一覧取得・favorite_intent_events 意図イベント）を src 配下に先取り実装していない",
+        "完了報告: report.md に全フェーズ中の位置（フェーズ1〜3 のうち本実行はフェーズ1、残り2つ）が明記されている",
+        "完了報告: report.md に実装者から独立した完了検証（テスト実行・設計書契約との整合確認）の結果が記録されている"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "missing-plan-entry-guard",
+      "prompt": "実装設計書 <codebase>/docs/plans/favorites/implementation-design-favorite-data-foundation.md を元に実装を進めてください。対象プロジェクトは <codebase> です。",
+      "target_phase": null,
+      "files": [
+        "spec-toolkit/skills/phase-implementation-workspace/inputs/implementation-design-favorite-no-plan.md",
+        "spec-toolkit/skills/_codebases-workspace/favorites-ec-app"
+      ],
+      "input_note": "この eval では設計書として implementation-design-favorite-no-plan.md(4. 実装計画セクションを欠く派生版)を implementation-design-favorite-data-foundation.md の名前で <codebase>/docs/plans/favorites/ に配置する。",
+      "expected_output": "設計書に 4. 実装計画が無いことを検知し、実装計画を自分で代行生成せず、コードも書かず(src 配下に変更なし)、implementation-design の実施をユーザーに案内して止まる。",
+      "assertions": [
+        "コード無変更: codebase の git status で src/ 配下・package.json に変更ファイルがない（実装を開始していない）",
+        "代行しない: 実装計画（フェーズ分割）を自分で生成して実装に進んでいない",
+        "案内して止まる: report.md が「4. 実装計画が欠けている」ことを指摘し、前段の implementation-design の実施を案内して止まっている"
+      ]
+    }
+  ]
+}
