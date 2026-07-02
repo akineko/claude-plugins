@@ -1,6 +1,6 @@
 {
   "skill_name": "implementation-design",
-  "note": "入力は impact-analysis の成果物(影響分析書)。1スキル実行=1バッチのため、各evalは対象バッチを1つ指定する。コードベース未提供時は契約レベルの論理設計に留める。",
+  "note": "入力は impact-analysis の成果物(影響分析書)。1スキル実行=1バッチのため、各evalは対象バッチを1つ指定する。コードベース未提供時は契約レベルの論理設計に留める。他環境では impact-analysis の eval を実行して出力を用意する。",
   "evals": [
     {
       "id": 0,

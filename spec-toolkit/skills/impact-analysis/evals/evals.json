@@ -1,5 +1,6 @@
 {
   "skill_name": "impact-analysis",
+  "note": "入力は feature-options の対応する eval の出力を workspace の inputs/ に配置したもの。他環境では feature-options の eval を実行して出力を配置する。",
   "evals": [
     {
       "id": 0,

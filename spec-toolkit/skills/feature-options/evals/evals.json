@@ -1,5 +1,6 @@
 {
   "skill_name": "feature-options",
+  "note": "eval 0〜2 の入力は request-spec の同名 eval の出力であり、他環境では request-spec の eval を実行して出力を配置する。eval 3 (lifecycle-gap) の入力は手書きの要求仕様書であり、workspace を削除すると失われるため再作成が必要(上流 eval からは再生成できない)。",
   "evals": [
     {
       "id": 0,
