@@ -9,10 +9,6 @@
       "source": "./magi"
     },
     {
-      "name": "agent-tuner",
-      "source": "./agent-tuner"
-    },
-    {
       "name": "dev-toolkit",
       "source": "./dev-toolkit"
     },
