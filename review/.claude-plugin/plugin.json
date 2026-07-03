@@ -1,6 +1,6 @@
 {
   "name": "review",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "コードレビュー・セキュリティレビュー・フレームワーク準拠監査と監査結果の対応管理などのレビュースキルを集約するプラグイン",
   "agents": [
     "./agents/quality-review-correctness.md",
