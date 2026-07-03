@@ -1,6 +1,6 @@
 ---
 name: security-review
-description: コード差分・PR・コミット範囲を対象に、攻撃面別の専門サブエージェント（injection / access-control / data-protection / logic-abuse）で悪用可能性を並列レビューし、メインが周辺コードと文脈を踏まえて誤検知を裁定し総合判定する差分特化のセキュリティレビュー。リポジトリ全体のフレームワーク準拠監査は security-audit、コード品質レビューは quality-review が担当。
+description: コード差分を攻撃面別の専門サブエージェントで並列レビューし、メインが周辺コードと文脈で誤検知を裁定して総合判定する差分特化のセキュリティレビュー。リポジトリ全体の準拠監査は security-audit、コード品質は quality-review が担当。
 argument-hint: "[対象: 未指定=コミット前 / staged / unstaged / <sha> / <a>..<b> / <branch> / PR番号 / 末尾に -- <path> でパス絞り込み]"
 disable-model-invocation: true
 ---
