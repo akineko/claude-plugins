@@ -61,7 +61,7 @@ disable-model-invocation: true
 
 スコープ内を偵察し、**コンポーネント**（独立して監査しうる単位）に分け、それぞれの種別を判定する。1 コンポーネントは複数種別に該当しうる。
 
-判定の手がかり（深追いせず、構造とマーカーから推定する。広いリポジトリでは偵察自体をサブエージェントに任せてよい）:
+判定の手がかり（深追いせず、構造とマーカーから推定する。広いリポジトリでは偵察を汎用の調査エージェント（general-purpose 等の読み取り系）に任せてよい。framework-auditor は監査専用なので偵察には使わない）:
 
 | 種別 | マーカーの例 |
 |------|------------|
@@ -162,7 +162,7 @@ monorepo では各 service ディレクトリ／各アプリが別コンポー�
 
 #### 6a. 全文レポートのファイル出力
 
-全文を `docs/security-audit/<YYYY-MM-DD>-report.md` に書き出す（日付は `date` コマンドで取得、ディレクトリが無ければ作成、ユーザーが出力先を指定した場合はそれに従う。同日に複数回走らせる場合は時刻や連番を付けて上書きを避ける）。レポートと対応表（audit-tracking）を 1:1 で対にするため、`reports/` のようなサブディレクトリは作らず、`docs/security-audit/` 直下に `<日付>-report.md` と `<日付>-tracking.md` を並置する。以下が全文テンプレート:
+全文を `docs/security-audit/<YYYY-MM-DD>-report.md` に書き出す（日付は `date` コマンドで取得、ディレクトリが無ければ作成、ユーザーが出力先を指定した場合はそれに従う。同日に複数回走らせる場合は時刻や連番を付けて上書きを避ける。例: `<日付>-2-report.md`。対応表はレポート basename の `-report` を `-tracking` に置換して対にするため、この連番も共有される）。レポートと対応表（audit-tracking）を 1:1 で対にするため、`reports/` のようなサブディレクトリは作らず、`docs/security-audit/` 直下に `<日付>-report.md` と `<日付>-tracking.md` を並置する。以下が全文テンプレート:
 
 ````markdown
 # Security Audit Report
@@ -228,22 +228,21 @@ monorepo では各 service ディレクトリ／各アプリが別コンポー�
 
 ````markdown
 # Security Audit 要約
-- **総合リスク**: Critical
+- **総合リスク**: High Risk
 - **レポート全文**: docs/security-audit/2026-05-30-report.md
 - **コンポーネント**: services/api(Web API), services/chat(LLM), apps/mobile(モバイル), infra(IaC/AWS)
 
 ## カバレッジ（違反件数 C/H/M/L ・未確認）
 | コンポーネント | フレームワーク | 違反 | 未確認 |
 |---|---|---|---|
-| services/api | API Top10 + ASVS | 3/3/2/0 | 4 |
-| services/chat | LLM Top10 | 1/3/1/0 | 1 |
-| apps/mobile | MASVS | 1/4/1/0 | 3 |
-| infra | CIS AWS | 3/3/1/1 | 2 |
+| services/api | API Top10 + ASVS | 0/1/2/0 | 1 |
+| services/chat | LLM Top10 | 0/1/0/0 | 0 |
+| apps/mobile | MASVS | 0/0/1/0 | 1 |
+| infra | CIS AWS | 0/0/0/1 | 0 |
 
 ## 重点検出（Critical / High のみ）
-- [CRITICAL] SA-api-01 BOLA（認可欠落） — services/api/src/orders.ts:8
-- [CRITICAL] SA-chat-01 過剰権限（任意シェル/SQL 実行） — services/chat/tools.py:6
-- [HIGH] SA-infra-02 S3 public-read — infra/s3.tf:7
+- [HIGH] SA-api-01 BOLA（認可欠落） — services/api/src/orders.ts:55
+- [HIGH] SA-chat-01 過剰権限（Excessive Agency） — services/chat/tools.py:6
 - …（Medium/Low・根拠・改善方向・未確認は全文ファイル参照）
 
 検出後の対応（修正・許容・再チェック・状態管理）は audit-tracking スキルで行えます。

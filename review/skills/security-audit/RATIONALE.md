@@ -65,3 +65,4 @@
 - 2026-05-30: iteration-2 で要件ベース重複回避（API×ASVS）を追記。
 - 2026-05-31: 実運用フィードバック反映 — 出力をファイル＋要約に分離、レポートからローカル絶対パス排除、出力先を `reports/` サブディレクトリから `docs/security-audit/<日付>-report.md` 直下へ（対応表と 1:1）。
 - 2026-06-03: 手動呼び出し前提（`disable-model-invocation`）に合わせ description を簡潔化。自動起動しない以上トリガーフレーズ列挙は役割を失うため廃し、補完メニューの可読性と兄弟スキル識別（security-review / audit-tracking との棲み分け）を優先。対象の指定形式は `argument-hint` に移譲（情報の単一箇所化）。
+- 2026-07-03: プラグイン自己レビュー反映 — 6a/6b の例示データを統一（要約例が High↔Critical・行番号で食い違い、テンプレとして模倣されるため）、同日複数実行時の対応表ペアリングを「basename の -report→-tracking 置換」規則として明文化、偵察の委任先を汎用調査エージェントと明記（framework-auditor は監査専用）。
