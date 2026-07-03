@@ -43,7 +43,7 @@ disable-model-invocation: true
 | `unstaged` | `git diff` |
 | コミット（`<sha>`） | `git show <sha>`（= `git diff <sha>^..<sha>`） |
 | 範囲（`<a>..<b>` / `<a>...<b>`） | `git diff <a>..<b>`。3点指定はそのまま尊重 |
-| ブランチ（`<branch>` または「現在のブランチ」） | base を検出（`main`/`master`/`develop` の存在する方）し `git diff $(git merge-base <base> HEAD)..HEAD` |
+| ブランチ（`<branch>` または「現在のブランチ」） | base を検出（`git symbolic-ref refs/remotes/origin/HEAD` → `gh repo view` → main/master の順で推定）し `git diff <base>...HEAD` |
 | PR（`PR番号` / PR URL） | `gh pr diff <番号>` で差分、`gh pr view <番号>` で説明・文脈を取得 |
 | パス絞り込み（末尾 `-- <path>`） | 上記コマンドに `-- <path>` を付与（monorepo のサービス/ディレクトリ単位） |
 
@@ -75,7 +75,7 @@ Agent ツールで以下の4専門家を**1メッセージ内で並列に**起�
 
 各専門家への**タスクプロンプト**には次を必ず含める：
 
-1. **対象差分**: フェーズ1で解決した diff（小さければ全文、大きければ「この git コマンドで取得せよ」＋変更ファイル一覧）
+1. **対象差分**: フェーズ1で解決した diff（小さければ全文、大きければ「この git コマンドで取得せよ」＋変更ファイル一覧）。未追跡の新規ファイルは diff コマンドに現れないため、パスを明示し「Read で読む」ことを指示する
 2. **コンテキストメモ**: フェーズ2で掴んだ信頼モデル
 3. **指摘の出力契約**（下記）
 

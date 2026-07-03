@@ -1,7 +1,7 @@
 ---
 name: quality-review
 description: コードの変更を正確性・設計保守性・パフォーマンスの3観点でサブエージェントに並列レビューさせ、メインが周辺コードと背景を踏まえて対応要否を統合判断する。セキュリティ脆弱性は対象外（security-review / security-audit を案内）。
-argument-hint: "[対象 (未指定=未コミット変更 / staged / コミット / 範囲 / ブランチ / PR番号 / パス)]"
+argument-hint: "[対象 (未指定=未コミット変更 / staged / unstaged / コミット / 範囲 / ブランチ / PR番号 / パス)]"
 disable-model-invocation: true
 ---
 
@@ -30,6 +30,7 @@ disable-model-invocation: true
 |---------|------|------|
 | 「レビューして」（無指定・既定） | 未コミット変更全体（staged+unstaged＋新規） | `git diff HEAD` ＋ `git status` で新規ファイルを確認し内容を読む |
 | 「これからコミットする分」「staged を見て」 | ステージ済み | `git diff --staged` |
+| 「unstaged だけ」「ステージしていない分」 | 未ステージのみ | `git diff` |
 | 「コミット前の変更」 | 作業ツリー全体 | `git diff HEAD`（＋新規ファイル） |
 | 「このコミット」「abc123 を」 | 単一コミット | `git show <sha>` |
 | 「A から B の範囲」 | コミット範囲 | `git diff <A>..<B>` |
@@ -51,7 +52,7 @@ disable-model-invocation: true
 各エージェントへ渡す情報:
 
 - 解決済みの対象（git range／PR番号／pathspec と、差分を取得する具体コマンド）
-- 変更ファイル一覧
+- 変更ファイル一覧（未追跡の新規ファイルは diff コマンドに現れないため、パスを明示し「Read で読む」ことを指示する）
 - スコープの説明（monorepo のどのサービスか等、絞っているなら明記）
 - 「自分のレーンに集中し、判定に必要なら周辺コードを読んでよい。深刻さだけ付け、対応区分は付けない」旨（各エージェント定義に記載済みなので簡潔でよい）
 
