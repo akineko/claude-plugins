@@ -49,6 +49,8 @@ disable-model-invocation: true
 - `review:quality-review-design` — 設計・保守性
 - `review:quality-review-performance` — パフォーマンス
 
+> 差分の性質に応じてレーンを減らしてよい（例: ドキュメント・設定のみの差分で performance が空振りしそうなら外す）。減らした場合は報告ヘッダの「視点」に外したレーンと理由を明記する。空振りしそうなレーンを無理に起動して指摘を捻り出させない。
+
 各エージェントへ渡す情報:
 
 - 解決済みの対象（git range／PR番号／pathspec と、差分を取得する具体コマンド）
