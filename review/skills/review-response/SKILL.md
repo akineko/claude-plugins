@@ -62,12 +62,13 @@ owner / repo / 番号を確定する（URL から抽出、または番号＋`gh 
 gh api graphql -f query='
 query($owner:String!,$repo:String!,$pr:Int!){
   repository(owner:$owner,name:$repo){ pullRequest(number:$pr){
-    reviewThreads(first:100){ nodes{ isResolved isOutdated
+    reviewThreads(first:100){ pageInfo{ hasNextPage endCursor } nodes{ isResolved isOutdated
       comments(first:20){ nodes{ author{login} body path line diffHunk } } } } } }
 }' -F owner=<owner> -F repo=<repo> -F pr=<番号>
 ```
 
 - `isResolved: true` のスレッドは **スキップ** し、件数だけ「解決済み N 件はスキップ」と注記する（一度片付いた議論を蒸し返さない）。`isOutdated` は行が古いだけで懸念が残りうるので中身で判断する（自明に無効化されているなら見送り）。
+- `pageInfo.hasNextPage` が true なら `after: <endCursor>` を付けて続きを取得する（100 スレッド超の PR で未解決コメントを無言で取りこぼさない）。
 - レビュー本文の総括（`gh pr view <番号> --json reviews`）と、スレッドに紐づかない未解決の会話コメントも、開いている指摘として拾う。
 - 検証の土台として背景と差分も取る: `gh pr view <番号>`（説明・意図）、`gh pr diff <番号>`（実際の変更）。深い文脈が要れば `gh pr checkout` でブランチを取得し全文を読む。
 
