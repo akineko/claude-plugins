@@ -1,0 +1,37 @@
+{
+  "skill_name": "test-audit",
+  "evals": [
+    {
+      "id": 0,
+      "name": "full-fixture-audit",
+      "prompt": "review/skills/test-audit-workspace/fixture/ 配下のリポジトリ全体をテストギャップ監査して。テストが薄くて危ない場所をリスク順に知りたい。",
+      "expected_output": "テスト基盤（vitest / co-located *.test.ts）を特定し、コンポーネント単位の並列監査でギャップ台帳を docs/test-audit/ に生成。植え込んだギャップ（review/skills/test-audit-workspace/fixture-ground-truth.md 参照）を概ね検出し、陰性コントロールをギャップとして指摘しない。各ギャップに TA- ID とリスク順位、チャットには Critical/High 要約のみ。",
+      "files": ["review/skills/test-audit-workspace/fixture/"],
+      "assertions": [
+        "台帳ファイルが docs/test-audit/<日付>-report.md 形式で生成されている",
+        "植込みギャップ6件（charge.ts 金銭ロジック / refund.ts エラーパス / session.ts 境界 / cart.ts ハッピーパスのみ / stock.ts 形骸テスト / rates.ts 境界値）がすべて台帳で検出されている",
+        "charge.ts のギャップが critical または high と評価されている",
+        "stock.test.ts が『テストは存在するが保護していない（形骸）』という趣旨で識別されている（単なる『テスト不足』ではなく）",
+        "陰性コントロール format.ts が medium 以上のギャップとして指摘されていない",
+        "陰性コントロール product.ts が medium 以上のギャップとして指摘されていない",
+        "各ギャップに TA-<略号>-<連番> 形式の安定 ID が付与されている",
+        "台帳のギャップが重大度降順（リスク順）に並んでいる",
+        "チャット要約が Critical/High に絞られ、台帳全文のファイルパスを示している",
+        "git 履歴なし等で確認できなかった事項が『未確認』として明示されている（保護済み扱いで隠れていない）"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "scoped-payments-audit",
+      "prompt": "review/skills/test-audit-workspace/fixture/ の payments モジュールだけテストギャップ監査して。",
+      "expected_output": "スコープを src/payments に限定し、charge.ts の未テスト金銭ロジックと refund.ts の未検証エラーパスを high 以上で検出した台帳を生成。他モジュールのギャップは台帳に含めない。",
+      "files": ["review/skills/test-audit-workspace/fixture/src/payments/"],
+      "assertions": [
+        "台帳のギャップ指摘が payments モジュールに限定されている（cart/stock/rates 等、他モジュールのギャップが台帳に含まれない）",
+        "charge.ts の未テスト金銭計算ロジックが critical または high で検出されている",
+        "refund.ts のエラーパス未検証（二重返金・超過・クローズ済み等）が検出されている",
+        "台帳ファイルが生成され、各ギャップに TA- 形式の ID が付与されている"
+      ]
+    }
+  ]
+}

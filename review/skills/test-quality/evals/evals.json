@@ -1,0 +1,37 @@
+{
+  "skill_name": "test-quality",
+  "evals": [
+    {
+      "id": 0,
+      "name": "full-fixture-audit",
+      "prompt": "review/skills/test-quality-workspace/fixture/ 配下のリポジトリ全体のテスト品質を監査して。テストはあるのだが CI がたまに落ちるし、直すのもつらい。信用できないテストをリスク順に知りたい。",
+      "expected_output": "テストスイート（vitest / co-located *.test.ts）を偵察し、コンポーネント単位の並列監査で品質台帳を docs/test-quality/ に生成。植え込んだ問題（review/skills/test-quality-workspace/fixture-ground-truth.md 参照: booking=順序依存・共有状態, availability=実時刻依存＋実待機, quote=実装詳細spy結合, mailer=過剰モック, customers=セットアップ重複, reports=巨大テスト）を概ね検出し、陰性コントロール（refund-policy.test.ts）を medium 以上で指摘せず良い手本として言及。各指摘に TQ- ID とリスク順位、チャットには Critical/High 要約のみ。",
+      "files": ["review/skills/test-quality-workspace/fixture/"],
+      "assertions": [
+        "台帳ファイルが docs/test-quality/<日付>-report.md 形式で生成されている",
+        "植込み問題6件（booking 順序依存 / availability 実時刻・実待機 / quote 実装詳細結合 / mailer 過剰モック / customers セットアップ重複 / reports 巨大テスト）がすべて台帳で検出されている",
+        "booking の順序依存・共有状態が critical または high と評価されている",
+        "quote の指摘が『実装詳細への結合（内部 spy 中心で挙動検証が薄い）』という趣旨で識別されている（単なる『テスト不足』ではなく）",
+        "陰性コントロール refund-policy.test.ts が medium 以上で指摘されず、良い手本として言及されている",
+        "availability の指摘で、ソース側に時刻注入点があるのにテストが実時刻を使っている不整合に触れている",
+        "各指摘に TQ-<略号>-<連番> 形式の安定 ID が付与されている",
+        "指摘が重大度降順（リスク順）に並び、同一ファイル内の同種問題がケース単位に分割されず1件に統合されている",
+        "チャット要約が Critical/High に絞られ、台帳全文のファイルパスを示している",
+        "プロダクションコードの保護ギャップ（テスト不足）が指摘本体に混入していない（あってもメタ情報・test-audit への案内に留まる）"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "scoped-booking-audit",
+      "prompt": "review/skills/test-quality-workspace/fixture/ の booking モジュールのテストだけ品質を見て。単体では通るのに全体実行やCIで挙動が怪しい。",
+      "expected_output": "スコープを src/booking のテスト群に限定し、booking-service.test.ts の順序依存・共有状態（critical〜high）と availability.test.ts の実時刻依存・実待機（high）を検出した台帳を生成。他モジュールの指摘は台帳に含めない。",
+      "files": ["review/skills/test-quality-workspace/fixture/src/booking/"],
+      "assertions": [
+        "台帳の指摘が booking モジュールのテストに限定されている（quote/mailer/customers/reports 等の指摘が含まれない）",
+        "booking-service.test.ts の順序依存・共有状態リセット漏れが critical または high で検出されている",
+        "availability.test.ts の実時刻依存（および実待機）が検出され、ソースの時刻注入点に触れた改善方向が示されている",
+        "台帳ファイルが生成され、各指摘に TQ- 形式の ID が付与されている"
+      ]
+    }
+  ]
+}
