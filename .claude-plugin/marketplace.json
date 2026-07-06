@@ -47,6 +47,10 @@
     {
       "name": "debug-toolkit",
       "source": "./debug-toolkit"
+    },
+    {
+      "name": "test-toolkit",
+      "source": "./test-toolkit"
     }
   ]
 }

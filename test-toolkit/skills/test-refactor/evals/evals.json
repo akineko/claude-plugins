@@ -1,0 +1,56 @@
+{
+  "skill_name": "test-refactor",
+  "notes": "入力の fixture は test-refactor-workspace/targets/ 配下（gitignore 対象・再生成可能）。実行前に fixture を用意し（git init + commit + npm install 済みの状態にする）、各 eval は fixture のコピーに対して実行する。正解データは test-refactor-workspace/ground-truth/ 参照。eval 実行サブエージェントのモデルは sonnet を明示指定する。",
+  "evals": [
+    {
+      "id": 1,
+      "name": "full-pipeline-single-package",
+      "prompt": "このプロジェクトのテストコードをリファクタリングしてください。test-refactor スキル（test-toolkit/skills/test-refactor/SKILL.md）に従って引数なし（リポジトリ全体）で実行し、承認チェックポイントでは「要ユーザー判断」フラグの無い全項目を承認として進めてください。",
+      "files": ["test-refactor-workspace/targets/single-package"],
+      "expected_output": "植え込んだ8種のスメル（L1/L2/L3/L4/L5/L7/C2/C3）の大半が計画に項目化され、承認済み項目が検証プロトコル付きで適用される。境界値テストと課金1回契約テストは無傷。プロダクションコードに差分なし、最終的にスイートは green。docs/test-refactor/ に計画ファイルが残る。",
+      "assertions": [
+        "計画（または報告）に format.test.ts の toBeTruthy テストが空洞アサーション（L1相当）として項目化されている",
+        "計画（または報告）に discount.test.ts のモック値検証テストがトートロジー（L2相当）として項目化されている",
+        "計画（または報告）に session.test.ts の sleep/実時刻依存が不安定要因（L3相当）として項目化されている",
+        "計画（または報告）に format.test.ts の全フィールド厳密一致が過剰詳細（L5相当）として項目化されている",
+        "計画（または報告）に cart/checkout 間のセットアップ重複（C2相当）が項目化されている",
+        "計画（または報告）に discount.test.ts の同値クラス重複3本（C3相当）が項目化されている",
+        "境界値テスト（ちょうど10000円・9999円）が削除も統合もされず検証内容が維持されている",
+        "「課金はちょうど1回」の toHaveBeenCalledTimes(1) 検証が緩められていない",
+        "適用後に npm test が green（skip を除く全テスト成功）",
+        "src 配下のプロダクションコード（.test.ts 以外）に差分が無い",
+        "docs/test-refactor/ に計画ファイルが生成されている",
+        "削減的変換（L5緩和・C3統合等）に代替カバレッジの対応または mutation check の実施記録が報告されている",
+        "実装詳細のバージョン文字列（generatedBy）の厳密一致検証が、最終状態のどのテストにも残っていない（強化・分割で別テストに移動して固定されるのも不可）",
+        "セットアップ共通化を適用した場合、テストの結果を左右する値（price/qty 等）がテスト側から追える形になっている（明示上書きまたは名前付き定数の参照。値ごとヘルパーに隠れているのは不可）"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "scoped-monorepo",
+      "prompt": "このモノレポの packages/app のテストコードをリファクタリングしてください。test-refactor スキル（test-toolkit/skills/test-refactor/SKILL.md）に従って引数 packages/app で実行し、承認チェックポイントでは「要ユーザー判断」フラグの無い全項目を承認として進めてください。",
+      "files": ["test-refactor-workspace/targets/monorepo"],
+      "expected_output": "app 内のスメル（L1/L7）が検出・修正される一方、スコープ外の packages/money には一切触れず、money 側テストとのレイヤー間重複も削減されない。最終報告に「スコープ外との重複は未評価」の注記がある。",
+      "assertions": [
+        "packages/money 配下のファイルに一切変更が無い",
+        "receipt.test.js の toBeDefined テストが空洞アサーション（L1相当）として検出されている",
+        "receipt.test.js の formatYen 詳細を再検証するテスト2本が削除・縮退されていない（スコープ外の money 側カバレッジを削減根拠にしていない）",
+        "最終報告にスコープ外（他パッケージ）との重複は未評価である旨の注記がある",
+        "適用後に packages/app のテストが green"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "plan-only",
+      "prompt": "このプロジェクトのテストコードのリファクタリング計画を作成してください。test-refactor スキル（test-toolkit/skills/test-refactor/SKILL.md）に従って --plan-only で実行してください。",
+      "files": ["test-refactor-workspace/targets/single-package"],
+      "expected_output": "docs/test-refactor/ に計画ファイルだけが生成され、テストコード・プロダクションコードに一切変更が無い。計画には植え込みスメルの過半が項目化されている。",
+      "assertions": [
+        "docs/test-refactor/ に計画ファイルが生成されている",
+        "docs/ 配下（と一時作業ファイル）以外に作業ツリーの変更が無い（テストコード・プロダクションコード未変更）",
+        "計画に植え込んだ8種のスメルのうち5種以上が項目化されている",
+        "計画の各項目に変換の類型（保存的/削減的/強化的）と検証方法が記載されている"
+      ]
+    }
+  ]
+}
