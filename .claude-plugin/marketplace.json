@@ -43,6 +43,10 @@
     {
       "name": "spec-toolkit",
       "source": "./spec-toolkit"
+    },
+    {
+      "name": "debug-toolkit",
+      "source": "./debug-toolkit"
     }
   ]
 }
