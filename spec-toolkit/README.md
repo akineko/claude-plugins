@@ -26,6 +26,10 @@ docs/plans/<機能名>/
 └── ...(設計バッチの数だけ)
 ```
 
+## 軽量版: quick-design
+
+小規模な機能追加・修正(振る舞いのまとまりが1〜2個、設計バッチ1個相当)は、[1]〜[4] 相当を1実行に集約した quick-design で進められる。成果物は `docs/plans/<機能名>.md` の1ファイルで、`## 2`〜`## 5` が実装設計書と同一構造のため、そのまま [5] phase-implementation に渡せる。規模が目安を超えると判定した場合は完走せず、request-spec からのフルパイプラインを案内する(基準は quick-design の SKILL.md「入口ガード」参照)。
+
 ## スキル一覧
 
 | スキル | 何をするか | 入力 | 実行回数 |
@@ -35,6 +39,7 @@ docs/plans/<機能名>/
 | impact-analysis | 機能設計書から変更点・影響範囲・コードベース上の関連箇所・設計トピック・設計バッチを整理し、影響分析書にまとめる | feature-options.md | 機能につき1回 |
 | implementation-design | 影響分析書の設計バッチを、骨格設計→詳細設計の2段階で実装設計書に落とす | impact-analysis.md | 設計バッチ数だけ繰り返す(1実行=1バッチ) |
 | phase-implementation | 実装設計書の実装計画をフェーズ単位で実装し、独立した検証まで行う | implementation-design-*.md + 対象フェーズ番号 | フェーズ数だけ繰り返す(1実行=1フェーズ) |
+| quick-design | 小規模な機能追加・修正向けに、要求整理〜実装設計([1]〜[4]相当)を1実行・1ファイルで完結させる軽量版 | 要望のテキストまたはパス | 機能につき1回 |
 
 ## 使い方
 
@@ -46,6 +51,7 @@ docs/plans/<機能名>/
 /spec-toolkit:impact-analysis docs/plans/favorite-products/feature-options.md
 /spec-toolkit:implementation-design docs/plans/favorite-products/impact-analysis.md
 /spec-toolkit:phase-implementation docs/plans/favorite-products/implementation-design-persistence.md 1
+/spec-toolkit:quick-design "商品一覧カードに在庫数を表示したい"
 ```
 
 前段の成果物が無い、または必須セクションが欠けている場合、各スキルは**入口ガード**で止まり、前段スキルを実施するようユーザーに案内する(自分で代行して埋めない)。
@@ -71,11 +77,11 @@ docs/plans/<機能名>/
 
 ## エージェント一覧
 
-impact-analysis・implementation-design・phase-implementation は、調査・設計・実装・検証をサブエージェントに委譲する。
+impact-analysis・implementation-design・phase-implementation・quick-design は、調査・設計・実装・検証をサブエージェントに委譲する。
 
 | エージェント | 呼び出し元 | 役割 |
 |---|---|---|
-| impact-investigator | impact-analysis | 焦点を絞ったコードベース/ドキュメント調査を行い、構造化された事実を返す(設計判断はしない) |
+| impact-investigator | impact-analysis, quick-design | 焦点を絞ったコードベース/ドキュメント調査を行い、構造化された事実を返す(設計判断はしない) |
 | greenfield-architect | implementation-design | 骨格設計・詳細設計+実装計画の主設計を担う(既存実装や移行コストを考慮しない、要件を満たす最もシンプルな設計) |
 | brownfield-architect | implementation-design | 既存コードベースとの整合・移行コスト・障害リスク・段階導入可能性の観点で骨格を批評する(独立した代替案は出さず、局所修正提案のみ) |
 | domain-first-architect | implementation-design | ドメイン概念の境界・不変条件の集中・用語の一貫性の観点で骨格を批評する(独立した代替案は出さず、局所修正提案のみ) |

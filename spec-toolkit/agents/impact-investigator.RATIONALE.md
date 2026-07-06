@@ -1,7 +1,7 @@
 # impact-investigator 設計ノート
 
 > 定義=`impact-investigator.md` / 本ファイル=保守者向けの決定の出所・load-bearing な制約。定義の再掲はしない。
-> impact-analysis スキルのコードベース調査専用エージェント。スキル側の設計は `../skills/impact-analysis/RATIONALE.md` 参照。
+> impact-analysis / quick-design スキルのコードベース調査エージェント。スキル側の設計は `../skills/impact-analysis/RATIONALE.md` と `../skills/quick-design/RATIONALE.md` 参照。
 
 ## 役割と位置づけ
 
@@ -22,6 +22,11 @@ impact-analysis から委譲される**調査専用**エージェント。事実
 ### 焦点を絞る／既存パターンの「揃え方」を材料として残す
 - 依頼対象から離れた深追いはしない（本体が次の依頼を投げる）。似た既存機能があれば所在と方式をパターンとして記録するが、揃えるべきかの判断はしない。
 
+### 呼び出し元は2つ（impact-analysis / quick-design）で利用形が異なる【2026-07追加】
+- **決定**: quick-design からも共用する（専用ロケーターの新設は却下 — 出力契約がそのまま探索役の要件を満たし、ほぼ同一エージェントの重複になる）。
+- **利用形の違い**: impact-analysis 本体は返答だけで判断しコードを読まない。quick-design 本体は返答の関連箇所表を足がかりに「主」ファイルだけを精読する（本体自身が契約まで設計するため）。
+- **保守上の注意**: 出力契約（インデックス化・主/関連の区別・不確実の明示）は両呼び出し元共通の土台。変更時は両スキルへの影響を確認する。
+
 ## 今回の検証で確認したこと（2026-05）
 
 実コードベース（`spec-toolkit/skills/_codebases-workspace/favorites-ec-app/`）に対し4焦点で並列調査し、各々が実ファイルパス＋役割/関連度、既存パターン（Context/feature構成/apiClient/requireAuth/BEM）、依存関係、そして**「不明点・前提が崩れる条件」を明記**（CSS未特定・server/index.ts欠落・パスワード検証未実装）し、**設計判断はせず事実収集に徹した**。この「不確実は不確実と書く」が、本体の B2 カバレッジ検算が足場不備を齟齬として拾う材料になった。
@@ -29,3 +34,4 @@ impact-analysis から委譲される**調査専用**エージェント。事実
 ## 改訂ログ
 
 - 2026-05-31: 定義は不変。impact-analysis 本体の C1〜C4 改訂（委譲記述は保持）に伴い役割確認。codebase 検証で実起動・挙動確認。
+- 2026-07-05: quick-design からの共用を追加（定義の呼び出し元表記のみ更新。行動原則・出力契約は不変）。

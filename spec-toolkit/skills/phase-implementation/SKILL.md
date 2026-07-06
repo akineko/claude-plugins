@@ -1,7 +1,7 @@
 ---
 name: phase-implementation
 description: 実装設計書(implementation-design の成果物)の実装計画を1フェーズ単位で実装するスキル。本体はオーケストレーターとして実装をサブエージェントに委譲し、テスト実行による完了検証と設計書契約との整合確認まで行う。1スキル実行 = 1フェーズ。
-argument-hint: "[実装設計書(implementation-design-*.md)のパス] [対象フェーズ番号]"
+argument-hint: "[実装設計書(implementation-design-*.md)または quick-design 設計メモのパス] [対象フェーズ番号]"
 disable-model-invocation: true
 ---
 
@@ -23,8 +23,8 @@ disable-model-invocation: true
 
 ## 入力の前提
 
-- **主入力**: implementation-design が生成した実装設計書(`docs/plans/<機能名>/implementation-design-<バッチスラッグ>.md`)
-- **補助参照**: 実装設計書 `1. 概要` に列挙された参照ドキュメント(影響分析書・機能設計書・要求仕様書)
+- **主入力**: implementation-design が生成した実装設計書(`docs/plans/<機能名>/implementation-design-<バッチスラッグ>.md`)、または quick-design が生成した設計メモ(`docs/plans/<機能名>.md`。`## 2`〜`## 5` が実装設計書と同一構造)
+- **補助参照**: 実装設計書 `1. 概要` に列挙された参照ドキュメント(影響分析書・機能設計書・要求仕様書)。quick-design の設計メモは単体で完結しており補助参照は不要
 - **対象範囲**: 実装設計書の `4. 実装計画` のうち、**1スキル実行につき1フェーズ**だけを対象とする
 
 ## 中核となる設計
