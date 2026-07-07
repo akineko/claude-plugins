@@ -1,0 +1,12 @@
+{
+  "name": "refactor-toolkit",
+  "version": "0.3.0",
+  "description": "既存コードのリファクタリング候補の発見（scout）→類似実装の統合設計（unify）→挙動保存の適用（apply）まで一貫して支援するプラグイン",
+  "agents": [
+    "./agents/refactor-scan-architecture.md",
+    "./agents/refactor-scan-locality.md",
+    "./agents/refactor-scan-drift.md",
+    "./agents/refactor-divergence-mapper.md",
+    "./agents/refactor-implementer.md"
+  ]
+}

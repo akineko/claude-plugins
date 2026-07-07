@@ -1,0 +1,51 @@
+{
+  "skill_name": "refactor-scout",
+  "notes": "入力は _codebases-workspace/shop-service（意図的な候補・トラップを埋め込んだ TS サンプル + git churn 履歴、34 ソース。refactor-unify / refactor-apply の eval と共有するため中立 workspace に配置）。実体はコミットしない（CLAUDE.md の eval 運用ルール）。他環境では fixture を再生成してから実行する。埋め込みトラップ: 4モジュール循環(pricing→catalog→loyalty→cart→pricing) / メール正規化の近似重複5ファイル(auth,search,users,notification,marketing) / churn高だが綺麗な config/feature-flags.ts / 凍結ファイル legacy/pricing-v1.ts(ADR-0010) / float金額 pricing/discount.ts(ADR-0009違反) / 既存: orders神クラス・orders↔billing循環・formatCurrency三重複・user-handler ADR-0003違反・migration例外(ADR-0007)・健全モジュール群(デコイ)。",
+  "evals": [
+    {
+      "id": 0,
+      "name": "whole-repo-prioritized",
+      "prompt": "この shop-service 全体をスキャンして、まず手を付けるべきリファクタリングを優先度順に出して。",
+      "expected_output": "大規模スキャンでの網羅・順位付け・捏造回避・レーン規律。",
+      "files": ["_codebases-workspace/shop-service"],
+      "assertions": [
+        "pricing→catalog→loyalty→cart→pricing の4モジュール間接循環を候補として検出している",
+        "メール正規化の近似重複が5ファイル（auth/search/users/notification/marketing）に散在することを横断的候補として検出している",
+        "churn が高いが綺麗な config/feature-flags.ts を候補として挙げていない（churn 単体で候補化しない）",
+        "クリーンなデコイ（shipping/catalog-repository/auth/token/search-index 等）を候補に挙げていない（大規模でも候補を捏造しない。P3・低ROI での事実に基づく軽微な言及は捏造にあたらない）",
+        "既存の主要候補（orders↔billing 循環・formatCurrency 三重複・OrderService 神クラスのいずれか複数）も拾えている",
+        "挙動バグ・脆弱性（user-handler の SQL インジェクション等）をリファクタ候補に格上げせず、レーン外の申し送りに留めている",
+        "優先度順のバックログを Markdown ファイルとして出力し、コードを一切改変していない",
+        "バックログの各項目に「状態: 未着手」フィールドが付き、ヘッダに消化順序とスキャン時コミット（sha）が明記されている（refactor-apply との共有契約）"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "architecture-deps",
+      "prompt": "モジュール間の依存構造に問題がないか見て、直すなら優先度を付けて。",
+      "expected_output": "ファイル横断の依存問題（2つの循環）を特定、健全な単方向依存は問題視しない。",
+      "files": ["_codebases-workspace/shop-service"],
+      "assertions": [
+        "pricing→catalog→loyalty→cart→pricing の4モジュール循環を、経路（どのファイルがどれを参照するか）を示して特定している",
+        "orders↔billing のドメイン間循環依存も検出している",
+        "shared/money への単方向依存など健全な依存を問題として挙げていない（誤検出していない）",
+        "候補を優先度付きで示し、コードを一切改変していない"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "adr-money-frozen",
+      "prompt": "ADR や設計方針からの逸脱を確認して、優先度を付けて教えて。",
+      "expected_output": "ADR-0009(float金額)違反を検出、準拠コードは誤検出せず、凍結ファイルとmigration例外は棄却。",
+      "files": ["_codebases-workspace/shop-service"],
+      "assertions": [
+        "pricing/discount.ts の float による金額計算を ADR-0009 違反として検出している",
+        "price-calculator / shared/money 等の minor-units 準拠コードを違反として誤検出していない",
+        "凍結された legacy/pricing-v1.ts を ADR-0010 を根拠に対象外（棄却）としている（醜さに釣られて候補化しない）",
+        "user-handler.ts の ADR-0003 違反（Repository 迂回の直接 SQL）を検出している",
+        "migration/bulk-import.ts を ADR-0007 の明示的例外として棄却している",
+        "候補を優先度付きで示し、コードを一切改変していない"
+      ]
+    }
+  ]
+}

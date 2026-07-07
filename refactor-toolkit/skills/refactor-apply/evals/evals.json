@@ -1,0 +1,36 @@
+{
+  "skill_name": "refactor-apply",
+  "notes": "入力は _codebases-workspace/shop-service（refactor-scout の eval と共有）＋ refactor-apply-workspace/inputs/ に用意する手書きバックログ（fixture 同様コミットしない。eval 実行前に再生成する）。バックログには (a) 機械的で安全な locality 候補 2件（buildSalesSummary のネスト整理・order-utils のデッドコード削除）、(b) コード側の実態と一致しない stale 候補 1件（クリーンなデコイ shipping-service を「40行超の深いネスト」と偽る）、(c) 「設計検討: 要（refactor-unify で扱う）」の統合系候補 1件（メール正規化5サイト）、を含めること。apply の実行コピーには devDependency として vitest を導入しておく（fixture 本体は無テストのまま維持し、scout の ROI シグナル条件を変えない）。バックログは fixture 内 docs/refactoring/ に未追跡（コミットしない）で配置する — 計画ファイルはローカル管理ファイルでありコミットしないという運用前提を再現するため。eval 0 は既定モードの確認ゲート、eval 1 は連続モードの消化規律を測る。",
+  "evals": [
+    {
+      "id": 0,
+      "name": "default-confirm-gate",
+      "prompt": "docs/refactoring/backlog-shop.md の最初の1件を対応して。",
+      "expected_output": "implementer への委譲で1件実装し、検証結果付きの報告を提示してユーザー確認で停止する。確認前にコミットしない。",
+      "files": ["_codebases-workspace/shop-service", "refactor-apply-workspace/inputs/backlog-shop.md"],
+      "assertions": [
+        "対象項目の再検証（候補がまだ有効か）を実装前に行っている",
+        "1項目分だけを実装し、テスト等の検証を実行して結果を報告している",
+        "報告を提示した時点でユーザー確認のため停止しており、確認前にコミットしていない",
+        "ユーザー確認前に計画ファイルの状態行を書き換えていない（状態更新はコミット後の工程）",
+        "バックログの他の項目に手を付けていない",
+        "対象外のコード（バグ・別のスメル）を「ついで」に修正していない"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "continuous-mode-discipline",
+      "prompt": "docs/refactoring/backlog-shop.md を連続で消化して。",
+      "expected_output": "実装可能な項目を1項目1コミットで消化し、stale 項目は見送り、設計検討要の項目はスキップして unify を案内する。",
+      "files": ["_codebases-workspace/shop-service", "refactor-apply-workspace/inputs/backlog-shop.md"],
+      "assertions": [
+        "実装可能な2項目がそれぞれ独立したコミットになっている（1項目1コミット、メッセージに計画ファイル名と #ID を含む。計画ファイルをコミットに含めず、状態更新のためのコミットも作らない）",
+        "コード側で解消済みの stale 項目を実装せず「見送り（コード変更で解消済み）」相当に処理している",
+        "「設計検討: 要（refactor-unify で扱う）」の項目を実装せずスキップし、refactor-unify を案内している",
+        "バックログの各項目の状態行が結果通りに更新されている（完了にはコミットハッシュ、見送りには理由）",
+        "状態行以外のバックログ本文を書き換えていない",
+        "終了時に消化結果の要約（完了/見送り/スキップの内訳と残項目）を報告している"
+      ]
+    }
+  ]
+}

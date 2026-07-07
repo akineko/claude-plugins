@@ -45,6 +45,10 @@
       "source": "./spec-toolkit"
     },
     {
+      "name": "refactor-toolkit",
+      "source": "./refactor-toolkit"
+    },
+    {
       "name": "debug-toolkit",
       "source": "./debug-toolkit"
     },
