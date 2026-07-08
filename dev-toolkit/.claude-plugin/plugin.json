@@ -1,5 +1,14 @@
 {
   "name": "dev-toolkit",
-  "version": "0.15.0",
-  "description": "開発に使える汎用的なスキル・エージェントを提供するプラグイン。"
+  "version": "0.16.0",
+  "description": "開発に使える汎用的なスキル・エージェントを提供するプラグイン。",
+  "agents": [
+    "./agents/codebase-investigator.md",
+    "./agents/td-task-designer.md",
+    "./agents/td-backend-developer.md",
+    "./agents/td-frontend-developer.md",
+    "./agents/td-test-runner.md",
+    "./agents/td-requirements-reviewer.md",
+    "./agents/hypothesis-investigator.md"
+  ]
 }

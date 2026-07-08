@@ -1,8 +1,0 @@
-{
-  "name": "debug-toolkit",
-  "version": "0.1.0",
-  "description": "バグ・障害の症状から対立仮説を並列検証して根本原因を特定する調査特化プラグイン。修正の実施はスコープ外とし、修正方針の提示までを担う。",
-  "agents": [
-    "./agents/hypothesis-investigator.md"
-  ]
-}

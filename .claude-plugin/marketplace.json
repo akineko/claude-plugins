@@ -29,8 +29,8 @@
       "source": "./doc-toolkit"
     },
     {
-      "name": "knowledge-distill",
-      "source": "./knowledge-distill"
+      "name": "distill-toolkit",
+      "source": "./distill-toolkit"
     },
     {
       "name": "review",
@@ -47,14 +47,6 @@
     {
       "name": "refactor-toolkit",
       "source": "./refactor-toolkit"
-    },
-    {
-      "name": "debug-toolkit",
-      "source": "./debug-toolkit"
-    },
-    {
-      "name": "test-toolkit",
-      "source": "./test-toolkit"
     }
   ]
 }
