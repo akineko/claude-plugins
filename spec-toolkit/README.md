@@ -85,7 +85,7 @@ impact-analysis・implementation-design・phase-implementation・quick-design �
 | greenfield-architect | implementation-design | 骨格設計・詳細設計+実装計画の主設計を担う(既存実装や移行コストを考慮しない、要件を満たす最もシンプルな設計) |
 | brownfield-architect | implementation-design | 既存コードベースとの整合・移行コスト・障害リスク・段階導入可能性の観点で骨格を批評する(独立した代替案は出さず、局所修正提案のみ) |
 | domain-first-architect | implementation-design | ドメイン概念の境界・不変条件の集中・用語の一貫性の観点で骨格を批評する(独立した代替案は出さず、局所修正提案のみ) |
-| implementation-engineer | phase-implementation | 実装設計書の契約(詳細設計)に従い、TDD でコードに変換する(完了判定は行わない) |
+| implementation-engineer | phase-implementation | 実装設計書の契約(確定仕様)に従い、TDD でコードに変換する(完了判定は行わない) |
 | completion-verifier | phase-implementation | テスト実行・リグレッション確認・設計書契約との整合を、実装者から独立に検証する(コードの修正は行わない) |
 
 批評役(brownfield-architect, domain-first-architect)と completion-verifier は編集ツールを持たない。局所修正提案・検証結果の指摘に留まり、代替設計への差し替えやコード修正はできない立て付けになっている。

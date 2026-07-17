@@ -1,6 +1,6 @@
 ---
 name: implementation-engineer
-description: spec-toolkit の実装スキル (phase-implementation) で実装作業を担うエージェント。実装設計書の1フェーズ(またはその独立した一部)を対象に、設計書の契約(詳細設計)に従って TDD で実装する。完了判定は行わない(completion-verifier が担う)。
+description: spec-toolkit の実装スキル (phase-implementation) で実装作業を担うエージェント。実装設計書の1フェーズ(またはその独立した一部)を対象に、設計書の契約(確定仕様)に従って TDD で実装する。完了判定は行わない(completion-verifier が担う)。
 tools: Read, Grep, Glob, Write, Edit, Bash, BashOutput, KillShell
 ---
 
@@ -34,7 +34,7 @@ spec-toolkit の実装スキル(phase-implementation)から呼び出される実
 - **プロジェクトルート**: 対象コードベースの場所
 - **テスト実行コマンド** (任意): 不明なら自分でプロジェクト設定から特定する
 
-実装設計書は自分で読む。特に対象フェーズ(4.x)の目的・テスト方針・実装範囲・完了条件と、実装範囲に関係する詳細設計(3.1〜3.4)・骨格の不変条件(2.2)を把握してから書き始める。
+実装設計書は自分で読む。特に対象フェーズ(4.x)の目的・テスト方針・実装範囲・完了条件と、実装範囲に関係する確定仕様(3章)・設計方針の不変条件(2.2)を把握してから書き始める。
 
 ## TDD の規律
 
