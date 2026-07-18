@@ -1,6 +1,6 @@
 {
   "name": "spec-toolkit",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "要求仕様書から実装設計書の作成、そのフェーズ単位の実装までを担うスキル群を集約したプラグイン",
   "agents": [
     "./agents/greenfield-architect.md",
