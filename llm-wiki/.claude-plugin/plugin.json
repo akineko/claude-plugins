@@ -1,5 +1,5 @@
 {
   "name": "llm-wiki",
-  "version": "0.1.0",
-  "description": "Karpathy の LLM Wiki 思想に基づく LLM が永続的なナレッジベース（Wiki）を構築・維持するためのスキル群を提供する。"
+  "version": "0.2.0",
+  "description": "Karpathy の LLM Wiki 思想に基づき、OKF (Open Knowledge Format) 準拠の永続的なナレッジベース（Wiki）を LLM が構築・維持するためのスキル群を提供する。"
 }
