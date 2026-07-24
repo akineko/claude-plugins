@@ -1,6 +1,6 @@
 {
   "name": "dev-toolkit",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "description": "開発に使える汎用的なスキル・エージェントを提供するプラグイン。",
   "agents": [
     "./agents/codebase-investigator.md",

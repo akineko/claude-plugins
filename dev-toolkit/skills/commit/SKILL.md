@@ -6,6 +6,7 @@ description: >
   ステージングの取捨選択はユーザーが事前に行う前提のため、ステージング内容の追加・除外は行わない。
 argument-hint: "[追加の指示（省略可）]"
 context: fork
+background: false
 ---
 
 # Commit

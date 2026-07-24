@@ -7,6 +7,7 @@ description: >
   push はユーザーが事前に行う前提のため、未push の場合は作成せず push を依頼する。
 argument-hint: "[マージ先ブランチや追加指示（省略可）]"
 context: fork
+background: false
 ---
 
 # Create PR
