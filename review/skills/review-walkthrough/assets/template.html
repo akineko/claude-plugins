@@ -415,7 +415,7 @@ function renderPoint(p) {
       ? '<dt>前提</dt><dd><ul>' + p.premises.map(x => '<li>' + x + '</li>').join('') + '</ul></dd>' : '') +
     '<dt>確認ポイント</dt><dd><ul class="checks">' + (p.checks || []).map(x => '<li>' + x + '</li>').join('') + '</ul></dd>' +
     '</dl>' +
-    codeBlock(p.file, p.diff, p.diffNote) +
+    (p.diffs || []).map(d => codeBlock(d.file, d.diff, d.note)).join('') +
     '<div class="p-review"><div class="status-seg" data-point="' + p.id + '">' +
     Object.keys(STATUS).map(v => '<button data-v="' + v + '">' + STATUS[v] + '</button>').join('') +
     '</div><textarea class="p-comment" data-point="' + p.id + '" rows="1" ' +

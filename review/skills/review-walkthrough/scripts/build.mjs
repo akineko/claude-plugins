@@ -31,6 +31,9 @@ const LOCKFILES = new Set([
 const FULLDIFF_MAX_LINES = 2000;
 const NOISE_DIFF_MAX_LINES = 120;
 const UNTRACKED_MAX_BYTES = 1024 * 1024;
+const POINT_DIFFS_MAX = 3;
+const COMMITS_SHOWN = 20;
+const FETCH_STALE_HOURS = 24;
 
 function die(msg) { console.error('[review-walkthrough] エラー: ' + msg); process.exit(1); }
 function warnOut(msg) { console.error('[review-walkthrough] 警告: ' + msg); }
@@ -76,7 +79,7 @@ function resolveTarget(root, rawSpec) {
   }
   if (spec === 'staged') return { spec, label: 'ステージ済みの変更', diffArgs: ['--cached'], untracked: false };
   if (spec === 'unstaged') return { spec, label: '未ステージの変更（+ untracked）', diffArgs: [], untracked: true };
-  if (spec.includes('..')) return { spec, label: '範囲 ' + spec, diffArgs: [spec], untracked: false };
+  if (spec.includes('..')) return { spec, label: '範囲 ' + spec, diffArgs: [spec], untracked: false, commitRange: spec.replace('...', '..') };
 
   const isLocalBranch = gitTry(root, ['rev-parse', '--verify', '--quiet', 'refs/heads/' + spec]);
   const isRemoteBranch = !isLocalBranch && gitTry(root, ['rev-parse', '--verify', '--quiet', 'refs/remotes/' + spec]);
@@ -88,14 +91,32 @@ function resolveTarget(root, rawSpec) {
     if (ref === base || ref === 'origin/' + base) {
       die('対象が既定ブランチ（' + base + '）そのものです。コミットまたは範囲（A..B）で指定してください');
     }
-    return { spec, label: 'ブランチ ' + ref + '（' + base + ' との merge-base 起点）', diffArgs: [base + '...' + ref], untracked: false };
+    // 基準は origin/<base> を優先する（ローカル <base> の pull 忘れに結果が左右されないため）
+    const baseRef = gitTry(root, ['rev-parse', '--verify', '--quiet', 'refs/remotes/origin/' + base]) ? 'origin/' + base : base;
+    return { spec, label: 'ブランチ ' + ref + '（' + baseRef + ' との merge-base 起点）', diffArgs: [baseRef + '...' + ref], untracked: false, commitRange: baseRef + '..' + ref };
   }
 
   if (gitTry(root, ['rev-parse', '--verify', '--quiet', spec + '^{commit}'])) {
     const parent = gitTry(root, ['rev-parse', '--verify', '--quiet', spec + '^']);
-    return { spec, label: 'コミット ' + spec, diffArgs: [parent ? spec + '^' : EMPTY_TREE, spec], untracked: false };
+    return { spec, label: 'コミット ' + spec, diffArgs: [parent ? spec + '^' : EMPTY_TREE, spec], untracked: false, commitRange: parent ? spec + '^..' + spec : spec };
   }
   die('対象を解決できません: ' + spec + '（staged / unstaged / コミット / A..B / ブランチ のいずれかで指定してください）');
+}
+
+/* ================= 対象コミットと基準の鮮度 ================= */
+function listCommits(root, range) {
+  const out = gitTry(root, ['log', '--format=%h %s', range]);
+  if (out === null) return null;
+  return out ? out.split('\n') : [];
+}
+
+function fetchAgeHours(root) {
+  const common = gitTry(root, ['rev-parse', '--git-common-dir']);
+  if (!common) return null;
+  try {
+    const mtime = fs.statSync(path.resolve(root, common, 'FETCH_HEAD')).mtimeMs;
+    return (Date.now() - mtime) / 3600000;
+  } catch { return null; } // FETCH_HEAD が無い（fetch 履歴が無い）場合は判定しない
 }
 
 /* ================= map: 差分の収集と構造化 ================= */
@@ -242,11 +263,13 @@ function cmdMap(opts) {
     adds: mapFiles.reduce((s, f) => s + f.adds, 0),
     dels: mapFiles.reduce((s, f) => s + f.dels, 0),
   };
+  const commits = target.commitRange ? listCommits(root, target.commitRange) : null;
   const map = {
     target: { spec: target.spec, label: target.label, diffArgs: target.diffArgs },
     root,
     generatedAt: new Date().toISOString(),
     totals,
+    commits: commits ? { range: target.commitRange, count: commits.length, list: commits.slice(0, COMMITS_SHOWN) } : undefined,
     files: mapFiles,
   };
   fs.writeFileSync(path.join(outDir, 'map.json'), JSON.stringify(map, null, 2));
@@ -258,9 +281,22 @@ function cmdMap(opts) {
     console.log('  ' + f.status.padEnd(2) + ' +' + String(f.adds).padEnd(5) + '−' + String(f.dels).padEnd(5) +
       f.path + (tags.length ? '  [' + tags.join(', ') + ']' : ''));
   }
+  if (commits) {
+    console.log('');
+    console.log('コミット ' + commits.length + ' 件（' + target.commitRange + '）:');
+    for (const c of commits.slice(0, COMMITS_SHOWN)) console.log('  ' + c);
+    if (commits.length > COMMITS_SHOWN) console.log('  …他 ' + (commits.length - COMMITS_SHOWN) + ' 件');
+  }
   console.log('');
   console.log('map: ' + path.join(outDir, 'map.json'));
   console.log('patches: ' + patchDir + path.sep);
+
+  if (target.diffArgs.some(a => a.includes('origin/'))) {
+    const age = fetchAgeHours(root);
+    if (age !== null && age >= FETCH_STALE_HOURS) {
+      warnOut('最終 fetch から約 ' + Math.round(age) + ' 時間経過しています（FETCH_HEAD の更新時刻）。基準の origin/* が実際のリモートより古い可能性があります。正確を期すには git fetch 後の再実行を検討してください');
+    }
+  }
 }
 
 /* ================= render: HTML の組み立て ================= */
@@ -302,8 +338,18 @@ function validateData(data) {
       need(SOURCES.includes(p.whySource), pw + ': whySource は ' + SOURCES.join('/') + ' のいずれかです（現在: ' + p.whySource + '）');
       need(Array.isArray(p.checks) && p.checks.length > 0, pw + ': checks は1件以上必要です');
       need(Array.isArray(p.premises || []), pw + ': premises は配列です');
-      need(typeof p.diff === 'string' && p.diff, pw + ': diff（抜粋）は必須です');
-      if (typeof p.diff === 'string' && p.diff && !p.diff.includes('@@')) warnings.push(pw + ': diff に @@ ハンクヘッダがありません（行番号が表示されません）');
+      if (p.diff !== undefined) errors.push(pw + ': 旧形式の diff（単数文字列）です。diffs: [{file, diff}] の配列に移行してください');
+      need(Array.isArray(p.diffs) && p.diffs.length >= 1 && p.diffs.length <= POINT_DIFFS_MAX,
+        pw + ': diffs（抜粋）は {file, diff} の配列で 1〜' + POINT_DIFFS_MAX + ' 件必要です');
+      for (const d of (Array.isArray(p.diffs) ? p.diffs : [])) {
+        need(d && typeof d.file === 'string' && d.file, pw + ': diffs[].file は必須です');
+        need(d && typeof d.diff === 'string' && d.diff, pw + ': diffs[].diff は必須です');
+        if (d && typeof d.diff === 'string' && d.diff && !d.diff.includes('@@')) warnings.push(pw + ': diffs の抜粋に @@ ハンクヘッダがありません（行番号が表示されません）');
+      }
+      if (Array.isArray(p.diffs) && p.diffs[0] && typeof p.diffs[0].file === 'string' && typeof p.file === 'string' &&
+          p.diffs[0].file.split(':')[0] !== p.file.split(':')[0]) {
+        warnings.push(pw + ': file（代表位置）と diffs 先頭のファイルが一致していません');
+      }
     }
   }
   for (const g of data.noise || []) {
