@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review Walkthrough</title>
+<script>
+try {
+  document.documentElement.dataset.theme =
+    localStorage.getItem('rw-theme') ||
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+} catch (e) { document.documentElement.dataset.theme = 'light'; }
+</script>
+<style>
+:root[data-theme="light"] {
+  --bg:#f4f6f9; --panel:#ffffff; --panel2:#f9fafc; --fg:#1d2433; --muted:#5c6675;
+  --border:#e2e7ef; --accent:#2f6bde; --accent-fg:#ffffff;
+  --code-bg:#f8fafc; --code-fg:#1f2937; --ln:#9aa5b5;
+  --add-bg:#e7f8ec; --del-bg:#fdebe9; --hunk-bg:#edf3fd; --hunk-fg:#4a5a75;
+  --sx-k:#a626a4; --sx-s:#428a4c; --sx-n:#986801; --sx-c:#9aa0a8; --sx-f:#3565c9; --sx-t:#b0851f;
+  --ok:#188a42; --fix:#d13438; --q:#c47b0a;
+  --shadow:0 1px 3px rgba(20,30,50,.07);
+}
+:root[data-theme="dark"] {
+  --bg:#0e1218; --panel:#161c26; --panel2:#131924; --fg:#dbe2ec; --muted:#8d97a7;
+  --border:#28303e; --accent:#5b8def; --accent-fg:#0d1420;
+  --code-bg:#10151d; --code-fg:#d5dce6; --ln:#57637a;
+  --add-bg:rgba(63,185,80,.16); --del-bg:rgba(248,81,73,.15); --hunk-bg:rgba(88,140,235,.14); --hunk-fg:#93a7c8;
+  --sx-k:#c678dd; --sx-s:#98c379; --sx-n:#d19a66; --sx-c:#69707d; --sx-f:#61afef; --sx-t:#e0c068;
+  --ok:#3fb950; --fix:#f47067; --q:#e0a13e;
+  --shadow:0 1px 3px rgba(0,0,0,.4);
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic UI",system-ui,sans-serif;
+  font-size:15px; line-height:1.75;
+}
+code, pre, .mono { font-family:ui-monospace,"SFMono-Regular","Cascadia Code",Consolas,"BIZ UDGothic",monospace; }
+p { margin:.5em 0; }
+h2 { font-size:20px; margin:0 0 6px; line-height:1.4; }
+button { font:inherit; cursor:pointer; }
+.muted { color:var(--muted); }
+
+/* ---- topbar ---- */
+.topbar { position:sticky; top:0; z-index:40; background:var(--panel); border-bottom:1px solid var(--border); }
+.topbar-in { max-width:1440px; margin:0 auto; padding:10px 20px; display:flex; align-items:center; gap:16px; }
+.tb-brand { font-size:11px; font-weight:700; letter-spacing:.08em; color:var(--accent); border:1px solid var(--accent); border-radius:5px; padding:2px 7px; white-space:nowrap; }
+.tb-title { min-width:0; flex:1; }
+.tb-title h1 { font-size:15.5px; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tb-meta { font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tb-meta code { font-size:11.5px; background:var(--panel2); border:1px solid var(--border); border-radius:4px; padding:0 5px; }
+.tb-actions { display:flex; gap:8px; align-items:center; }
+.btn { background:var(--panel); color:var(--fg); border:1px solid var(--border); border-radius:7px; padding:6px 12px; font-size:13px; }
+.btn:hover { border-color:var(--accent); color:var(--accent); }
+.btn-primary { background:var(--accent); color:var(--accent-fg); border-color:var(--accent); font-weight:600; }
+.btn-primary:hover { color:var(--accent-fg); opacity:.9; }
+
+/* ---- layout ---- */
+.layout { max-width:1440px; margin:0 auto; display:grid; grid-template-columns:300px minmax(0,1fr); }
+.sidebar { position:sticky; top:55px; height:calc(100vh - 55px); overflow-y:auto; padding:18px 14px 24px; border-right:1px solid var(--border); font-size:13px; }
+main { padding:22px 36px 80px; max-width:1010px; min-width:0; }
+@media (max-width:980px) { .layout { display:block; } .sidebar { display:none; } main { padding:16px; } }
+section { scroll-margin-top:70px; }
+.unit, #noise, #general { margin-top:44px; }
+
+/* ---- sidebar ---- */
+.sb-h { font-size:11px; font-weight:700; letter-spacing:.06em; color:var(--muted); margin:16px 4px 6px; }
+.progress-wrap { background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:10px 12px; }
+.progress-bar { height:6px; border-radius:3px; background:var(--border); overflow:hidden; margin:6px 0 8px; }
+.progress-bar > div { height:100%; width:0%; background:var(--accent); transition:width .25s; }
+.progress-nums { display:flex; gap:10px; font-size:12px; color:var(--muted); flex-wrap:wrap; }
+.progress-nums b { color:var(--fg); }
+.toc a { display:block; color:var(--fg); text-decoration:none; padding:4px 8px; border-radius:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.toc a:hover { background:var(--panel2); }
+.toc a.current { background:var(--panel2); color:var(--accent); font-weight:600; }
+.toc .t-unit { font-weight:600; margin-top:4px; }
+.toc .t-point { padding-left:22px; position:relative; color:var(--muted); font-size:12.5px; }
+.toc .t-point::before { content:""; position:absolute; left:9px; top:50%; transform:translateY(-50%); width:7px; height:7px; border-radius:50%; background:var(--border); }
+.toc .t-point.st-ok::before { background:var(--ok); }
+.toc .t-point.st-fix::before { background:var(--fix); }
+.toc .t-point.st-q::before { background:var(--q); }
+.sb-note { color:var(--muted); font-size:11.5px; margin-top:14px; line-height:1.6; }
+.sidebar .btn-primary { width:100%; margin-top:14px; }
+
+/* ---- overview ---- */
+.noteband { background:var(--hunk-bg); color:var(--hunk-fg); border:1px dashed var(--border); border-radius:8px; padding:6px 12px; font-size:12.5px; margin-bottom:18px; }
+.stats { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 20px; }
+.stat { background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:8px 14px; box-shadow:var(--shadow); }
+.stat b { font-size:17px; display:block; line-height:1.3; }
+.stat span { font-size:11.5px; color:var(--muted); }
+.stat .add { color:var(--ok); } .stat .del { color:var(--fix); }
+.unit-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin:16px 0; }
+.ucard { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:13px 15px; text-decoration:none; color:var(--fg); box-shadow:var(--shadow); display:block; }
+.ucard:hover { border-color:var(--accent); }
+.ucard .no { font-size:11px; color:var(--muted); font-weight:700; letter-spacing:.05em; }
+.ucard h3 { margin:2px 0 6px; font-size:14.5px; line-height:1.45; }
+.ucard p { margin:0 0 8px; font-size:12.5px; color:var(--muted); line-height:1.6; }
+.ucard .chips { display:flex; gap:5px; flex-wrap:wrap; }
+.howto { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin-top:18px; font-size:13.5px; }
+.howto ul { margin:8px 0 0; padding-left:20px; }
+.howto li { margin:4px 0; }
+
+/* ---- badges / chips ---- */
+.badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; white-space:nowrap;
+  background:color-mix(in srgb, var(--k) 13%, transparent); color:var(--k); border:1px solid color-mix(in srgb, var(--k) 38%, transparent); }
+.badge.sm { font-size:10px; padding:1px 7px; }
+.kd { --k:#8b5cf6; } .ke { --k:#0e97d5; } .ki { --k:#d98a0b; } .kg { --k:#0fa573; } .kr { --k:#e5484d; } .kc { --k:#7c8aa0; }
+:root[data-theme="dark"] .kd { --k:#a78bfa; } :root[data-theme="dark"] .ke { --k:#4cc2f1; }
+:root[data-theme="dark"] .ki { --k:#e8a33d; } :root[data-theme="dark"] .kg { --k:#34d399; }
+:root[data-theme="dark"] .kr { --k:#f2555a; } :root[data-theme="dark"] .kc { --k:#93a3b8; }
+.chip { display:inline-block; font-size:10.5px; font-weight:700; border-radius:4px; padding:1px 6px; margin-right:6px; vertical-align:1px; }
+.src-conv { background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent); }
+.src-doc { background:color-mix(in srgb, var(--ok) 14%, transparent); color:var(--ok); }
+.src-inf { background:color-mix(in srgb, var(--q) 16%, transparent); color:var(--q); }
+.fchip { font-size:11px; background:var(--panel2); border:1px solid var(--border); border-radius:4px; padding:1px 6px; color:var(--muted); }
+
+/* ---- unit ---- */
+.u-head { border-bottom:2px solid var(--border); padding-bottom:12px; margin-bottom:18px; }
+.u-kicker { font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--accent); }
+.u-goal { color:var(--muted); margin:2px 0 8px; }
+.u-files { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0; }
+.u-meta { font-size:13px; margin:3px 0; }
+.u-meta b { color:var(--muted); font-weight:600; margin-right:4px; }
+.u-review { margin-top:14px; }
+
+/* ---- point card ---- */
+.point { background:var(--panel); border:1px solid var(--border); border-radius:11px; box-shadow:var(--shadow); padding:15px 18px 13px; margin:16px 0; }
+.p-head { display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; margin-bottom:4px; }
+.p-no { font-size:11.5px; font-weight:700; color:var(--muted); }
+.p-head h4 { margin:0; font-size:15.5px; line-height:1.5; flex:1; min-width:200px; }
+.p-loc { margin:0 0 8px; }
+.loc { font-size:12px; color:var(--muted); background:var(--panel2); border:1px solid var(--border); border-radius:5px; padding:1px 8px; cursor:pointer; }
+.loc:hover { color:var(--accent); border-color:var(--accent); }
+.p-facts { display:grid; grid-template-columns:104px 1fr; gap:5px 14px; margin:10px 0; font-size:13.8px; }
+.p-facts dt { color:var(--muted); font-size:12px; font-weight:700; padding-top:2px; }
+.p-facts dd { margin:0; min-width:0; }
+.p-facts ul { margin:0; padding-left:18px; }
+.p-facts li { margin:2px 0; }
+.checks li::marker { content:"❓ "; font-size:11px; }
+@media (max-width:700px) { .p-facts { grid-template-columns:1fr; gap:2px; } .p-facts dt { padding-top:8px; } }
+
+/* ---- review controls ---- */
+.p-review { display:flex; gap:10px; margin-top:12px; align-items:flex-start; flex-wrap:wrap; }
+.status-seg { display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; flex:none; }
+.status-seg button { background:var(--panel); color:var(--muted); border:none; border-right:1px solid var(--border); padding:5px 13px; font-size:12.5px; }
+.status-seg button:last-child { border-right:none; }
+.status-seg button:hover { color:var(--fg); }
+.status-seg button.on { color:#fff; font-weight:700; }
+.status-seg button.on[data-v="none"] { background:var(--muted); }
+.status-seg button.on[data-v="ok"] { background:var(--ok); }
+.status-seg button.on[data-v="fix"] { background:var(--fix); }
+.status-seg button.on[data-v="q"] { background:var(--q); }
+textarea { width:100%; background:var(--panel2); color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:7px 10px; font:inherit; font-size:13px; line-height:1.6; resize:vertical; min-height:38px; }
+textarea:focus { outline:none; border-color:var(--accent); }
+.p-review textarea { flex:1; min-width:240px; }
+
+/* ---- code / diff ---- */
+.codeblock { border:1px solid var(--border); border-radius:9px; overflow:hidden; margin:10px 0; background:var(--code-bg); }
+.codeblock .cap { display:flex; justify-content:space-between; gap:10px; align-items:center; padding:5px 12px; background:var(--panel2); border-bottom:1px solid var(--border); font-size:12px; }
+.codeblock .cap code { color:var(--muted); }
+.codeblock .lang { font-size:10px; font-weight:700; letter-spacing:.05em; color:var(--muted); text-transform:uppercase; }
+.tblwrap { overflow-x:auto; }
+table.diff { border-collapse:collapse; width:100%; font-family:ui-monospace,"SFMono-Regular","Cascadia Code",Consolas,monospace; font-size:12.4px; line-height:1.6; color:var(--code-fg); }
+table.diff td { padding:0 4px; vertical-align:top; }
+td.ln { text-align:right; color:var(--ln); user-select:none; width:1%; min-width:34px; padding:0 8px; font-size:11px; }
+td.sign { user-select:none; width:1%; color:var(--muted); }
+td.code { white-space:pre; padding-right:16px; }
+tr.r-add { background:var(--add-bg); }
+tr.r-del { background:var(--del-bg); }
+tr.r-hunk { background:var(--hunk-bg); color:var(--hunk-fg); }
+tr.r-hunk td { padding:2px 8px; font-size:11px; }
+.sx-k { color:var(--sx-k); } .sx-s { color:var(--sx-s); } .sx-n { color:var(--sx-n); }
+.sx-c { color:var(--sx-c); font-style:italic; } .sx-f { color:var(--sx-f); } .sx-t { color:var(--sx-t); }
+.block-note { font-size:12px; color:var(--muted); margin:-4px 0 10px; }
+
+/* ---- details ---- */
+details.fold { border:1px solid var(--border); border-radius:9px; background:var(--panel2); margin:12px 0; }
+details.fold > summary { cursor:pointer; padding:9px 14px; font-size:13.5px; font-weight:600; list-style:none; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+details.fold > summary::before { content:"▸"; color:var(--muted); transition:transform .15s; }
+details.fold[open] > summary::before { transform:rotate(90deg); }
+details.fold > summary .sum-sub { font-weight:400; color:var(--muted); font-size:12px; }
+details.fold > .fold-body { padding:2px 14px 12px; }
+.fold-note { font-size:12px; color:var(--muted); }
+
+/* ---- noise ---- */
+#noise .lead, #general .lead { color:var(--muted); font-size:13.5px; }
+.noise-files { margin:4px 0 6px; padding-left:20px; font-size:12.5px; }
+.noise-files code { background:var(--panel2); border:1px solid var(--border); border-radius:4px; padding:0 5px; font-size:11.5px; }
+.noise-files .fstat { color:var(--muted); font-size:11px; margin-left:6px; }
+.noise-check { display:flex; gap:8px; align-items:center; margin-top:14px; font-size:13.5px; background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:10px 14px; cursor:pointer; }
+.noise-check input { width:15px; height:15px; accent-color:var(--accent); }
+
+/* ---- modal / toast ---- */
+#modal { position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; }
+#modal[hidden] { display:none; }
+.m-back { position:absolute; inset:0; background:rgba(8,12,20,.55); }
+.m-panel { position:relative; background:var(--panel); border:1px solid var(--border); border-radius:12px; width:min(860px, calc(100vw - 40px)); max-height:84vh; display:flex; flex-direction:column; box-shadow:0 12px 40px rgba(0,0,0,.35); }
+.m-panel header { display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border); font-weight:700; font-size:14px; }
+.m-panel header button { background:none; border:none; color:var(--muted); font-size:16px; }
+#md-pre { margin:0; padding:14px 18px; overflow:auto; font-size:12.3px; line-height:1.65; white-space:pre-wrap; word-break:break-word; flex:1; }
+.m-panel footer { display:flex; gap:10px; padding:12px 18px; border-top:1px solid var(--border); justify-content:flex-end; }
+#toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:7px 18px; border-radius:20px; font-size:13px; z-index:120; opacity:0; transition:opacity .2s; pointer-events:none; }
+#toast.show { opacity:1; }
+.errband { background:#fde8e8; color:#b42323; padding:10px 16px; font-size:13px; }
+
+footer.page { margin-top:60px; color:var(--muted); font-size:12px; border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <span class="tb-brand">REVIEW WALKTHROUGH</span>
+    <div class="tb-title">
+      <h1 id="tb-title"></h1>
+      <div class="tb-meta" id="tb-meta"></div>
+    </div>
+    <div class="tb-actions">
+      <button class="btn btn-primary" id="btn-export">フィードバック書き出し</button>
+      <button class="btn" id="btn-theme" title="ライト/ダーク切替">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar"></nav>
+  <main id="main">
+    <noscript><div class="errband">この資料の表示には JavaScript が必要です。</div></noscript>
+  </main>
+</div>
+
+<div id="modal" hidden>
+  <div class="m-back" data-close="1"></div>
+  <div class="m-panel">
+    <header>フィードバック（Markdown） <button data-close="1" title="閉じる">✕</button></header>
+    <pre id="md-pre"></pre>
+    <footer>
+      <button class="btn" id="md-dl">.md をダウンロード</button>
+      <button class="btn btn-primary" id="md-copy">クリップボードにコピー</button>
+    </footer>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script id="app">
+'use strict';
+
+/* ================= ユーティリティ ================= */
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/* ================= 簡易シンタックスハイライト =================
+   正規表現ベースの自作実装（外部ライブラリ非依存・オフライン動作のため）。
+   コメント様式＋キーワード集合を言語別に持ち、汎用トークナイザで着色する。 */
+const HL_LANGS = {
+  ts: { c: ['//', '/*'], kw: 'const let var function return if else for while do switch case break continue new class extends implements interface type import from export default async await try catch finally throw typeof instanceof in of null undefined true false this super enum readonly public private protected static as satisfies keyof never unknown any void number string boolean object symbol bigint declare abstract override get set yield delete it describe expect test' },
+  py: { c: ['#'], kw: 'def return if elif else for while import from as class try except finally raise with lambda pass break continue None True False and or not in is global nonlocal yield async await assert del match case self print' },
+  rb: { c: ['#'], kw: 'def end if elsif else unless case when while until for do return class module begin rescue ensure raise yield self nil true false and or not then super require include extend attr_accessor attr_reader lambda proc puts new' },
+  go: { c: ['//', '/*'], kw: 'func return if else for range switch case default break continue fallthrough package import type struct interface map chan go defer select var const nil true false make new len cap append copy delete panic recover error string int int8 int16 int32 int64 uint uint64 bool byte rune float32 float64 any' },
+  rs: { c: ['//', '/*'], kw: 'fn return if else for while loop match impl trait struct enum pub use mod let mut const static ref crate super self Self where async await move dyn continue break in as unsafe type true false None Some Ok Err String str i8 i16 i32 i64 u8 u16 u32 u64 usize isize f32 f64 bool Vec Box Option Result' },
+  java: { c: ['//', '/*'], kw: 'public private protected class interface enum extends implements return if else for while do switch case default break continue new static final void abstract synchronized volatile transient native int long short byte boolean double float char String var record sealed permits try catch finally throw throws import package this super null true false instanceof assert yield' },
+  kt: { c: ['//', '/*'], kw: 'fun val var return if else for while when object class interface enum data sealed companion suspend override open internal public private protected lateinit lazy init constructor import package this super null true false is as in out by try catch finally throw String Int Long Boolean Double Float Unit Any' },
+  cs: { c: ['//', '/*'], kw: 'public private protected internal class interface struct enum record return if else for foreach while do switch case default break continue new static readonly const void abstract sealed virtual override async await var string int long bool double float decimal char object dynamic using namespace this base null true false is as in out ref try catch finally throw get set init required' },
+  c: { c: ['//', '/*'], kw: 'int char long short unsigned signed void return if else for while do switch case default break continue struct union enum typedef static const extern volatile inline sizeof NULL float double auto register goto bool true false class public private protected virtual template typename namespace using new delete nullptr' },
+  php: { c: ['//', '/*', '#'], kw: 'function return if else elseif foreach for while switch case default break continue class extends implements interface trait public private protected static new echo null true false use namespace require include try catch finally throw fn match readonly const global isset unset array' },
+  swift: { c: ['//', '/*'], kw: 'func return if else for while repeat switch case default break continue class struct enum protocol extension var let guard defer import nil true false self init deinit throws rethrows try catch async await some any where in is as String Int Double Bool' },
+  sql: { c: ['--'], kw: 'SELECT FROM WHERE INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE ALTER ADD DROP INDEX VIEW CONSTRAINT PRIMARY KEY FOREIGN REFERENCES NOT NULL UNIQUE DEFAULT AND OR AS JOIN LEFT RIGHT INNER OUTER FULL CROSS ON GROUP BY HAVING ORDER LIMIT OFFSET UNION ALL DISTINCT CASE WHEN THEN ELSE END BEGIN COMMIT ROLLBACK TRANSACTION TEXT INTEGER BIGINT TIMESTAMP VARCHAR BOOLEAN SERIAL CASCADE RESTRICT EXISTS IN IS LIKE BETWEEN select from where insert into values update set delete create table alter add drop index constraint primary key foreign references not null unique default and or as join left right inner outer on group by having order limit' },
+  sh: { c: ['#'], kw: 'if then else elif fi for in do done while until case esac function return local export readonly echo printf set shift exit read source alias unset trap true false test' },
+  yaml: { c: ['#'], kw: 'true false null yes no on off' },
+  toml: { c: ['#'], kw: 'true false' },
+  json: { c: [], kw: 'true false null' },
+  css: { c: ['/*'], kw: 'important inherit initial unset auto none' },
+  html: { c: ['<!--'], kw: 'DOCTYPE html head body div span script style link meta title' },
+  prisma: { c: ['//'], kw: 'model enum datasource generator provider fields references String Int BigInt DateTime Boolean Json Float Decimal Bytes Unsupported' },
+  tf: { c: ['#', '//', '/*'], kw: 'resource module variable output data provider locals terraform for_each count depends_on source type default description sensitive true false null var local each' },
+  txt: { c: [], kw: '' },
+};
+const HL_EXT = {
+  ts: 'ts', tsx: 'ts', mts: 'ts', cts: 'ts', js: 'ts', jsx: 'ts', mjs: 'ts', cjs: 'ts', vue: 'ts', svelte: 'ts',
+  py: 'py', rb: 'rb', go: 'go', rs: 'rs', java: 'java', kt: 'kt', kts: 'kt', cs: 'cs',
+  c: 'c', h: 'c', cpp: 'c', cc: 'c', hpp: 'c', hh: 'c', m: 'c', mm: 'c',
+  php: 'php', swift: 'swift', sql: 'sql', psql: 'sql',
+  sh: 'sh', bash: 'sh', zsh: 'sh', fish: 'sh',
+  yml: 'yaml', yaml: 'yaml', toml: 'toml', json: 'json', jsonc: 'json',
+  css: 'css', scss: 'css', less: 'css', html: 'html', htm: 'html', xml: 'html', ejs: 'html', erb: 'html',
+  prisma: 'prisma', tf: 'tf', tfvars: 'tf', md: 'txt', markdown: 'txt', txt: 'txt',
+};
+function extLang(file) {
+  const base = String(file).replace(/:\d+$/, '').split('/').pop() || '';
+  if (/^(Dockerfile|Makefile|Rakefile|Justfile)$/i.test(base)) return 'sh';
+  const ext = base.includes('.') ? base.split('.').pop().toLowerCase() : '';
+  return HL_EXT[ext] || 'txt';
+}
+const hlCache = {};
+function hlDef(lang) {
+  if (hlCache[lang]) return hlCache[lang];
+  const d = HL_LANGS[lang] || HL_LANGS.txt;
+  const parts = [];
+  parts.push(d.c.includes('/*') ? '(\\/\\*[\\s\\S]*?\\*\\/)' : '(\\u0000)');
+  parts.push(d.c.includes('<!--') ? '(<!--[\\s\\S]*?-->)' : '(\\u0000)');
+  const lineC = [];
+  if (d.c.includes('//')) lineC.push('\\/\\/[^\\n]*');
+  if (d.c.includes('#')) lineC.push('#[^\\n]*');
+  if (d.c.includes('--')) lineC.push('--[^\\n]*');
+  parts.push(lineC.length ? '(' + lineC.join('|') + ')' : '(\\u0000)');
+  parts.push("('(?:[^'\\\\\\n]|\\\\.)*'|\"(?:[^\"\\\\\\n]|\\\\.)*\"|`(?:[^`\\\\]|\\\\.)*`)");
+  parts.push('(\\b\\d[\\w.]*\\b)');
+  parts.push('(\\b[A-Za-z_$][\\w$]*\\b)');
+  const def = { re: new RegExp(parts.join('|'), 'g'), kw: new Set(d.kw.split(/\s+/).filter(Boolean)) };
+  hlCache[lang] = def;
+  return def;
+}
+function hl(code, lang) {
+  const def = hlDef(lang);
+  def.re.lastIndex = 0;
+  let out = '', i = 0, m;
+  while ((m = def.re.exec(code))) {
+    out += esc(code.slice(i, m.index));
+    const t = m[0];
+    if (m[1] || m[2] || m[3]) out += '<span class="sx-c">' + esc(t) + '</span>';
+    else if (m[4]) out += '<span class="sx-s">' + esc(t) + '</span>';
+    else if (m[5]) out += '<span class="sx-n">' + esc(t) + '</span>';
+    else if (def.kw.has(t)) out += '<span class="sx-k">' + esc(t) + '</span>';
+    else if (/^[A-Z]/.test(t)) out += '<span class="sx-t">' + esc(t) + '</span>';
+    else if (/^\s*\(/.test(code.slice(def.re.lastIndex))) out += '<span class="sx-f">' + esc(t) + '</span>';
+    else out += esc(t);
+    i = def.re.lastIndex;
+  }
+  return out + esc(code.slice(i));
+}
+
+/* ================= unified diff の描画 ================= */
+function parseDiff(text) {
+  const rows = []; let o = 0, n = 0;
+  for (const line of String(text).replace(/\n$/, '').split('\n')) {
+    const h = line.match(/^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+    if (h) { o = +h[1]; n = +h[2]; rows.push({ k: 'hunk', text: line }); continue; }
+    if (/^(diff |index |--- |\+\+\+ |new file|deleted file|old mode|new mode|similarity|rename |Binary files|GIT binary)/.test(line)) continue;
+    if (line.charAt(0) === '+') { rows.push({ k: 'add', n: n++, text: line.slice(1) }); continue; }
+    if (line.charAt(0) === '-') { rows.push({ k: 'del', o: o++, text: line.slice(1) }); continue; }
+    if (line.charAt(0) === '\\') { rows.push({ k: 'hunk', text: line }); continue; }
+    rows.push({ k: 'ctx', o: o++, n: n++, text: line.slice(1) });
+  }
+  return rows;
+}
+function codeBlock(file, diffText, note) {
+  const lang = extLang(file);
+  const body = parseDiff(diffText).map(r => {
+    if (r.k === 'hunk') {
+      return '<tr class="r-hunk"><td class="ln" colspan="2"></td><td class="sign"></td><td class="code">' + esc(r.text) + '</td></tr>';
+    }
+    const sign = r.k === 'add' ? '+' : r.k === 'del' ? '-' : '';
+    return '<tr class="r-' + r.k + '"><td class="ln">' + (r.o ?? '') + '</td><td class="ln">' + (r.n ?? '') +
+      '</td><td class="sign">' + sign + '</td><td class="code">' + hl(r.text, lang) + '</td></tr>';
+  }).join('');
+  return '<figure class="codeblock"><figcaption class="cap"><code>' + esc(String(file).replace(/:\d+$/, '')) +
+    '</code><span class="lang">' + esc(lang) + '</span></figcaption>' +
+    '<div class="tblwrap"><table class="diff">' + body + '</table></div></figure>' +
+    (note ? '<p class="block-note">' + esc(note) + '</p>' : '');
+}
+
+/* ================= 語彙 ================= */
+const KINDS = {
+  discretion:     { label: '裁量判断',          cls: 'kd' },
+  external:       { label: '外部仕様への依存',   cls: 'ke' },
+  interpretation: { label: '仕様の解釈',        cls: 'ki' },
+  integration:    { label: '既存コードとの接続', cls: 'kg' },
+  risk:           { label: 'リスク集中',        cls: 'kr' },
+  complexity:     { label: '複雑性',            cls: 'kc' },
+};
+const SRC = {
+  conversation: { label: '会話',   cls: 'src-conv', title: '実装セッションの会話に根拠がある説明' },
+  doc:          { label: '設計書', cls: 'src-doc',  title: '設計ドキュメントに根拠がある説明' },
+  inferred:     { label: '推定',   cls: 'src-inf',  title: 'コード・履歴から AI が再構成した説明（鵜呑みにしない）' },
+};
+const STATUS = { none: '未', ok: 'OK', fix: '要修正', q: '質問' };
+
+/* ================= 状態（localStorage） =================
+   レビュー状態は資料ごと（タイトル＋対象から導出したキー）、テーマは全資料共通。 */
+function djb2(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36); }
+let KEY = 'rw-uninitialized';
+let state;
+function loadState() {
+  try { state = Object.assign({ points: {}, units: {}, general: '', noiseChecked: false }, JSON.parse(localStorage.getItem(KEY) || '{}')); }
+  catch (e) { state = { points: {}, units: {}, general: '', noiseChecked: false }; }
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+function pstate(id) { return state.points[id] || (state.points[id] = { st: 'none', c: '' }); }
+function ustate(id) { return state.units[id] || (state.units[id] = { c: '' }); }
+function allPoints() { return DATA.units.flatMap(u => u.points); }
+function unitOf(pid) { return DATA.units.find(u => u.points.some(p => p.id === pid)); }
+
+/* ================= 描画 ================= */
+function srcChip(src) {
+  const s = SRC[src]; if (!s) return '';
+  return '<span class="chip ' + s.cls + '" title="' + esc(s.title) + '">' + s.label + '</span>';
+}
+function fileChip(u, f) {
+  const note = u.fileNotes && u.fileNotes[f];
+  return '<span class="fchip">' + esc(f) + (note ? '（' + esc(note) + '）' : '') + '</span>';
+}
+function renderPoint(p) {
+  const k = KINDS[p.kind] || KINDS.complexity;
+  return '<article class="point" id="' + p.id + '">' +
+    '<header class="p-head"><span class="badge ' + k.cls + '">' + k.label + '</span>' +
+    '<span class="p-no">P' + p.no + '</span><h4>' + esc(p.title) + '</h4></header>' +
+    '<div class="p-loc"><code class="loc" data-copy="' + esc(p.file) + '" title="クリックでパスをコピー">' + esc(p.file) + '</code></div>' +
+    '<dl class="p-facts">' +
+    '<dt>何をしているか</dt><dd>' + p.what + '</dd>' +
+    '<dt>なぜ</dt><dd>' + srcChip(p.whySource) + p.why + '</dd>' +
+    (p.premises && p.premises.length
+      ? '<dt>前提</dt><dd><ul>' + p.premises.map(x => '<li>' + x + '</li>').join('') + '</ul></dd>' : '') +
+    '<dt>確認ポイント</dt><dd><ul class="checks">' + (p.checks || []).map(x => '<li>' + x + '</li>').join('') + '</ul></dd>' +
+    '</dl>' +
+    codeBlock(p.file, p.diff, p.diffNote) +
+    '<div class="p-review"><div class="status-seg" data-point="' + p.id + '">' +
+    Object.keys(STATUS).map(v => '<button data-v="' + v + '">' + STATUS[v] + '</button>').join('') +
+    '</div><textarea class="p-comment" data-point="' + p.id + '" rows="1" ' +
+    'placeholder="このポイントへのコメント（要修正・質問は書き出しに含まれます）"></textarea></div>' +
+    '</article>';
+}
+function renderUnit(u, idx) {
+  const full = (u.fullDiff || []).map(d =>
+    d.diff ? codeBlock(d.file, d.diff, d.note) :
+    '<p class="fold-note"><code>' + esc(d.file) + '</code> — ' + esc(d.note || 'diff なし') + '</p>').join('');
+  return '<section class="unit" id="' + u.id + '">' +
+    '<header class="u-head">' +
+    '<div class="u-kicker">ユニット ' + (idx + 1) + ' / ' + DATA.units.length + '</div>' +
+    '<h2>' + esc(u.name) + '</h2>' +
+    '<p class="u-goal">' + u.goal + '</p>' +
+    '<div class="u-files">' + u.files.map(f => fileChip(u, f)).join('') + '</div>' +
+    (u.flow ? '<p class="u-meta"><b>流れ</b> ' + u.flow + '</p>' : '') +
+    (u.order ? '<p class="u-meta"><b>読む順</b> ' + u.order + '</p>' : '') +
+    '</header>' +
+    u.points.map(renderPoint).join('') +
+    (full ? '<details class="fold"><summary>このユニットの全 diff <span class="sum-sub">（' + (u.fullDiff || []).length + ' ファイル）</span></summary>' +
+      '<div class="fold-body">' + full +
+      (u.fullDiffNote ? '<p class="fold-note">' + esc(u.fullDiffNote) + '</p>' : '') +
+      '</div></details>' : '') +
+    '<div class="u-review"><textarea class="u-comment" data-unit="' + u.id + '" rows="1" ' +
+    'placeholder="このユニットへのコメント（ポイント以外への指摘）"></textarea></div>' +
+    '</section>';
+}
+function renderOverview() {
+  const m = DATA.meta;
+  const s = m.stats || {};
+  const cards = DATA.units.map((u, i) =>
+    '<a class="ucard" href="#' + u.id + '"><div class="no">UNIT ' + (i + 1) + '</div><h3>' + esc(u.name) + '</h3>' +
+    '<p>' + (u.tagline || '') + '</p><div class="chips">' +
+    u.points.map(p => '<span class="badge sm ' + (KINDS[p.kind] || KINDS.complexity).cls + '">' + (KINDS[p.kind] || KINDS.complexity).label + '</span>').join('') +
+    '</div></a>').join('');
+  return '<section id="overview">' +
+    (m.note ? '<div class="noteband">' + esc(m.note) + '</div>' : '') +
+    '<h2>変更の全体像</h2>' +
+    '<div class="stats">' +
+    '<div class="stat"><b>' + (s.files ?? '?') + '</b><span>変更ファイル</span></div>' +
+    '<div class="stat"><b><span class="add">+' + (s.adds ?? '?') + '</span> <span class="del">−' + (s.dels ?? '?') + '</span></b><span>追加 / 削除行</span></div>' +
+    '<div class="stat"><b>' + DATA.units.length + '</b><span>ユニット</span></div>' +
+    '<div class="stat"><b>' + allPoints().length + '</b><span>重要ポイント</span></div>' +
+    '<div class="stat"><b>' + (s.noiseFiles ?? 0) + '</b><span>ノイズ棚のファイル</span></div>' +
+    '</div>' +
+    '<p>' + DATA.overview.summary + '</p>' +
+    '<div class="unit-cards">' + cards + '</div>' +
+    '<div class="howto"><b>この資料の使い方</b><ul>' +
+    '<li>ユニットは<b>推奨の読み順</b>に並んでいます。各ポイントを確認したら <b>OK / 要修正 / 質問</b> を選んでください。進捗と目次に反映されます（入力はこのブラウザ内にのみ保存）。</li>' +
+    '<li>「なぜ」の出所チップ: ' + srcChip('conversation') + '実装時の会話に根拠あり ／ ' + srcChip('doc') + '設計ドキュメントに根拠あり ／ ' + srcChip('inferred') + '<b>コード・履歴からの再構成</b>。推定は鵜呑みにせず、確認ポイントを起点に検証してください。</li>' +
+    '<li>読み終えたら<b>「フィードバック書き出し」</b>で要修正・質問だけが Markdown になります。そのまま AI に貼れば修正依頼になります。</li>' +
+    '</ul></div>' +
+    '</section>';
+}
+function fstat(f) {
+  if (typeof f === 'string') return '<li><code>' + esc(f) + '</code></li>';
+  const st = f.binary ? 'バイナリ' : '+' + (f.adds ?? '?') + ' −' + (f.dels ?? '?');
+  return '<li><code>' + esc(f.path) + '</code><span class="fstat">' + st + '</span></li>';
+}
+function renderNoise() {
+  if (!DATA.noise || !DATA.noise.length) return '';
+  const groups = DATA.noise.map(g =>
+    '<details class="fold"><summary>' + esc(g.name) +
+    ' <span class="sum-sub">' + esc(g.sub || '') + ' ｜ 根拠: ' + esc(g.reason) + '</span></summary>' +
+    '<div class="fold-body">' +
+    (g.files && g.files.length ? '<ul class="noise-files">' + g.files.map(fstat).join('') + '</ul>' : '') +
+    (g.diffs || []).map(d => codeBlock(d.file, d.diff, d.note)).join('') +
+    (g.note ? '<p class="fold-note">' + esc(g.note) + '</p>' : '') +
+    '</div></details>').join('');
+  return '<section id="noise"><h2>ノイズ棚 — 機械的・波及的な変更</h2>' +
+    '<p class="lead">レビュー価値が低いと判断した変更を本文から隔離しています。<b>グループ名と分類根拠だけ</b>確認してください（分類が誤っていると、実質的な変更がここに紛れている可能性があります）。</p>' +
+    groups +
+    '<label class="noise-check"><input type="checkbox" id="noise-check"> ノイズ棚を確認した（分類に異議なし）</label>' +
+    '</section>';
+}
+function renderGeneral() {
+  return '<section id="general"><h2>全体コメント</h2>' +
+    '<p class="lead">特定のポイントに紐づかない指摘はここへ。</p>' +
+    '<textarea id="general-comment" rows="3" placeholder="変更全体・資料そのものへのコメント"></textarea>' +
+    '<footer class="page">review プラグインの review-walkthrough で生成。この HTML は外部リソースを参照しない単一ファイルで、レビュー状態はこのブラウザの localStorage にのみ保存されます。</footer>' +
+    '</section>';
+}
+function renderSidebar() {
+  const toc = ['<div class="progress-wrap"><div style="font-weight:700">レビュー進捗 <span id="prog-label"></span></div>' +
+    '<div class="progress-bar"><div id="prog-fill"></div></div>' +
+    '<div class="progress-nums" id="prog-nums"></div></div>'];
+  toc.push('<div class="sb-h">目次</div><nav class="toc">');
+  toc.push('<a href="#overview" data-sec="overview">概要</a>');
+  DATA.units.forEach((u, i) => {
+    toc.push('<a class="t-unit" href="#' + u.id + '" data-sec="' + u.id + '">U' + (i + 1) + '. ' + esc(u.name) + '</a>');
+    u.points.forEach(p => {
+      toc.push('<a class="t-point" id="toc-' + p.id + '" href="#' + p.id + '">P' + p.no + '. ' + esc(p.title) + '</a>');
+    });
+  });
+  if (DATA.noise && DATA.noise.length) toc.push('<a class="t-unit" href="#noise" data-sec="noise">ノイズ棚 <span id="toc-noise-mark"></span></a>');
+  toc.push('<a class="t-unit" href="#general" data-sec="general">全体コメント</a>');
+  toc.push('</nav>');
+  toc.push('<button class="btn btn-primary" id="btn-export2">フィードバック書き出し</button>');
+  toc.push('<div class="sb-note">状態と入力はこのブラウザにのみ保存されます。書き出した Markdown を AI に渡すと修正依頼になります。</div>');
+  return toc.join('');
+}
+
+/* ================= 状態の反映 ================= */
+function refresh() {
+  const pts = allPoints();
+  const counts = { none: 0, ok: 0, fix: 0, q: 0 };
+  pts.forEach(p => { counts[pstate(p.id).st]++; });
+  const done = pts.length - counts.none;
+  document.getElementById('prog-label').textContent = done + ' / ' + pts.length;
+  document.getElementById('prog-fill').style.width = (pts.length ? (done / pts.length) * 100 : 0) + '%';
+  document.getElementById('prog-nums').innerHTML =
+    '<span style="color:var(--ok)">OK <b>' + counts.ok + '</b></span>' +
+    '<span style="color:var(--fix)">要修正 <b>' + counts.fix + '</b></span>' +
+    '<span style="color:var(--q)">質問 <b>' + counts.q + '</b></span>' +
+    '<span>未 <b>' + counts.none + '</b></span>';
+  pts.forEach(p => {
+    const st = pstate(p.id).st;
+    document.querySelectorAll('[data-point="' + p.id + '"] button').forEach(b =>
+      b.classList.toggle('on', b.dataset.v === st));
+    const t = document.getElementById('toc-' + p.id);
+    if (t) t.className = 't-point' + (st !== 'none' ? ' st-' + st : '');
+  });
+  const nm = document.getElementById('toc-noise-mark');
+  if (nm) nm.textContent = state.noiseChecked ? '✓' : '';
+}
+
+/* ================= フィードバックの書き出し ================= */
+function fmtPoint(p) {
+  const u = unitOf(p.id);
+  const s = pstate(p.id);
+  const lines = ['### [P' + p.no + '] ' + p.title,
+    '- 場所: `' + p.file + '`（' + (u ? u.name : '') + '）',
+    '- 資料の説明: ' + p.whatPlain];
+  if (s.c.trim()) lines.push('', s.c.trim());
+  else lines.push('', '（コメントなし）');
+  return lines.join('\n');
+}
+function buildMarkdown() {
+  const pts = allPoints();
+  const by = v => pts.filter(p => pstate(p.id).st === v);
+  const counts = { ok: by('ok').length, fix: by('fix').length, q: by('q').length, none: by('none').length };
+  const L = [];
+  L.push('# レビューフィードバック: ' + DATA.meta.title);
+  L.push('');
+  L.push('- 対象: `' + DATA.meta.target + '`（資料生成: ' + (DATA.meta.generated || '') + '）');
+  L.push('- 判定: OK ' + counts.ok + ' ／ 要修正 ' + counts.fix + ' ／ 質問 ' + counts.q + ' ／ 未確認 ' + counts.none + '（全 ' + pts.length + ' ポイント）');
+  if (DATA.noise && DATA.noise.length) L.push('- ノイズ棚: ' + (state.noiseChecked ? '確認済み・異議なし' : '未確認'));
+  L.push('');
+  L.push('以下は review-walkthrough のレビュー資料に対する人間レビューの結果です。各項目の「場所」を確認し、要修正に対応し、質問に回答してください。');
+  if (by('fix').length) { L.push('', '## 要修正'); by('fix').forEach(p => L.push('', fmtPoint(p))); }
+  if (by('q').length) { L.push('', '## 質問'); by('q').forEach(p => L.push('', fmtPoint(p))); }
+  const uc = DATA.units.filter(u => ustate(u.id).c.trim());
+  if (uc.length) {
+    L.push('', '## ユニットへのコメント');
+    uc.forEach(u => L.push('', '### ' + u.name, '', ustate(u.id).c.trim()));
+  }
+  if (state.general.trim()) L.push('', '## 全体コメント', '', state.general.trim());
+  return L.join('\n') + '\n';
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._h); toast._h = setTimeout(() => t.classList.remove('show'), 1800);
+}
+function openExport() {
+  document.getElementById('md-pre').textContent = buildMarkdown();
+  document.getElementById('modal').hidden = false;
+}
+
+/* ================= イベント ================= */
+function bind() {
+  document.addEventListener('click', e => {
+    const seg = e.target.closest('.status-seg button');
+    if (seg) {
+      pstate(seg.closest('.status-seg').dataset.point).st = seg.dataset.v;
+      save(); refresh(); return;
+    }
+    const loc = e.target.closest('.loc');
+    if (loc) {
+      navigator.clipboard?.writeText(loc.dataset.copy).then(() => toast('パスをコピーしました'));
+      return;
+    }
+    if (e.target.closest('[data-close]')) { document.getElementById('modal').hidden = true; return; }
+  });
+  document.addEventListener('input', e => {
+    const el = e.target;
+    if (el.classList.contains('p-comment')) { pstate(el.dataset.point).c = el.value; save(); }
+    else if (el.classList.contains('u-comment')) { ustate(el.dataset.unit).c = el.value; save(); }
+    else if (el.id === 'general-comment') { state.general = el.value; save(); }
+    else if (el.id === 'noise-check') { state.noiseChecked = el.checked; save(); refresh(); }
+  });
+  document.getElementById('btn-export').addEventListener('click', openExport);
+  document.getElementById('btn-export2').addEventListener('click', openExport);
+  document.getElementById('md-copy').addEventListener('click', () => {
+    navigator.clipboard?.writeText(buildMarkdown()).then(() => toast('コピーしました'));
+  });
+  document.getElementById('md-dl').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([buildMarkdown()], { type: 'text/markdown' }));
+    a.download = 'review-feedback.md';
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+  document.getElementById('btn-theme').addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('rw-theme', next); } catch (e) {}
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.getElementById('modal').hidden = true;
+  });
+  const obs = new IntersectionObserver(es => {
+    es.forEach(en => {
+      if (!en.isIntersecting) return;
+      document.querySelectorAll('.toc a[data-sec]').forEach(a =>
+        a.classList.toggle('current', a.dataset.sec === en.target.id));
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' });
+  ['overview', ...DATA.units.map(u => u.id), 'noise', 'general'].forEach(id => {
+    const el = document.getElementById(id); if (el) obs.observe(el);
+  });
+}
+
+/* ================= 起動 ================= */
+function applyStateToInputs() {
+  document.querySelectorAll('.p-comment').forEach(el => { el.value = pstate(el.dataset.point).c; });
+  document.querySelectorAll('.u-comment').forEach(el => { el.value = ustate(el.dataset.unit).c; });
+  document.getElementById('general-comment').value = state.general;
+  const nc = document.getElementById('noise-check');
+  if (nc) nc.checked = state.noiseChecked;
+}
+function boot() {
+  if (!DATA) throw new Error('レビューデータが注入されていません。scripts/build.mjs の render で生成してください。');
+  KEY = 'rw-' + djb2(String(DATA.meta.target) + '|' + String(DATA.meta.title));
+  loadState();
+  document.title = 'Walkthrough: ' + DATA.meta.title;
+  document.getElementById('tb-title').textContent = DATA.meta.title;
+  document.getElementById('tb-meta').innerHTML =
+    '対象 <code>' + esc(DATA.meta.target) + '</code> ・ 生成 ' + esc(DATA.meta.generated || '') + ' ・ ' + esc(DATA.meta.command || '');
+  document.getElementById('sidebar').innerHTML = renderSidebar();
+  document.getElementById('main').innerHTML =
+    renderOverview() + DATA.units.map(renderUnit).join('') + renderNoise() + renderGeneral();
+  applyStateToInputs();
+  bind();
+  refresh();
+}
+
+/* render（scripts/build.mjs）がこの null を JSON に置換する */
+const DATA = /*__WALKTHROUGH_DATA__*/ null /*__WALKTHROUGH_DATA_END__*/;
+
+try {
+  boot();
+} catch (e) {
+  document.body.insertAdjacentHTML('afterbegin',
+    '<div class="errband">描画エラー: ' + esc(e && e.message) + '</div>');
+  console.error(e);
+}
+</script>
+</body>
+</html>
