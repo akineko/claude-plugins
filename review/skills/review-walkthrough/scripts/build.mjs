@@ -32,6 +32,8 @@ const FULLDIFF_MAX_LINES = 2000;
 const NOISE_DIFF_MAX_LINES = 120;
 const UNTRACKED_MAX_BYTES = 1024 * 1024;
 const POINT_DIFFS_MAX = 3;
+const CODEREF_MAX = 3;
+const CODEREF_MAX_LINES = 40;
 const COMMITS_SHOWN = 20;
 const FETCH_STALE_HOURS = 24;
 
@@ -323,7 +325,33 @@ function validateData(data) {
     need(u.id && !uids.has(u.id), where + ': id が空か重複しています'); uids.add(u.id);
     need(u.name, where + ': name は必須です');
     need(u.goal, where + ': goal は必須です');
-    need(Array.isArray(u.files) && u.files.length > 0 && u.files.every(f => typeof f === 'string'), where + ': files は文字列（リポジトリルート相対パス）の配列で1件以上必要です');
+    for (const [k, hint] of [
+      ['tagline', 'name が同じ役割を果たすため廃止しました'],
+      ['flow', 'files[] の並び順と role（このユニットでの役割）へ移してください'],
+      ['fileNotes', 'files[].note へ移してください'],
+    ]) if (u[k] !== undefined) errors.push(where + ': 旧形式の ' + k + ' があります。' + hint);
+    need(Array.isArray(u.files) && u.files.length > 0, where + ': files は1件以上必要です');
+    if ((u.files || []).some(f => typeof f === 'string')) {
+      errors.push(where + ': 旧形式の files（文字列の配列）です。{path, role} の配列（並び順＝読む順）に移行してください');
+    }
+    for (const f of (Array.isArray(u.files) ? u.files : [])) {
+      if (typeof f === 'string') continue;
+      need(f && typeof f.path === 'string' && f.path, where + ': files[].path は必須です');
+      need(f && typeof f.role === 'string' && f.role, where + ': files[].role（このユニットでの役割）は必須です: ' + (f && f.path));
+    }
+    if (u.background !== undefined) {
+      need(typeof u.background === 'string' && u.background, where + ': background は空にしないでください（不要なら省略する）');
+    }
+    if (u.codeRefs !== undefined) {
+      need(Array.isArray(u.codeRefs) && u.codeRefs.length <= CODEREF_MAX, where + ': codeRefs は最大 ' + CODEREF_MAX + ' 件です');
+      need(u.background, where + ': codeRefs は background の引用なので、background なしでは使えません');
+      for (const r of (Array.isArray(u.codeRefs) ? u.codeRefs : [])) {
+        need(r && typeof r.file === 'string' && r.file, where + ': codeRefs[].file は必須です');
+        need(r && typeof r.lines === 'string' && /^\d+(-\d+)?$/.test(r.lines),
+          where + ': codeRefs[].lines は "12-30" または "12" の形式です（現在: ' + (r && r.lines) + '）');
+        need(r && typeof r.caption === 'string' && r.caption, where + ': codeRefs[].caption（この引用が何を示すか）は必須です');
+      }
+    }
     need(Array.isArray(u.points), where + ': points は配列が必須です（0件可）');
     if (Array.isArray(u.points) && u.points.length === 0) warnings.push(where + ': ポイントが 0 件です（説明と全 diff のみの表示になります）');
     if (Array.isArray(u.points) && u.points.length > 6) warnings.push(where + ': ポイントが ' + u.points.length + ' 件あります（目安は 2〜5 件）');
@@ -359,6 +387,37 @@ function validateData(data) {
   return { errors, warnings };
 }
 
+/**
+ * ユニット背景のコード引用をワークツリーの現物から抽出する。
+ * モデルにコードを転記させないため、data.json には file と行範囲だけを書かせる。
+ */
+function extractCodeRef(root, ref, changedPaths, warnings) {
+  const abs = path.resolve(root, ref.file);
+  const rel = path.relative(root, abs).split(path.sep).join('/');
+  if (rel.startsWith('..') || path.isAbsolute(rel)) die('codeRefs: リポジトリ外のファイルは引用できません: ' + ref.file);
+  let buf;
+  try { buf = fs.readFileSync(abs); } catch { die('codeRefs: ファイルを読めません: ' + ref.file); }
+  if (buf.subarray(0, 8000).includes(0)) die('codeRefs: バイナリファイルは引用できません: ' + ref.file);
+
+  const lines = buf.toString('utf8').replace(/\n$/, '').split('\n');
+  const m = ref.lines.match(/^(\d+)(?:-(\d+))?$/);
+  const start = Number(m[1]);
+  let end = m[2] ? Number(m[2]) : start;
+  if (start < 1 || start > lines.length) die('codeRefs: 開始行が範囲外です（' + ref.file + ' は ' + lines.length + ' 行）: ' + ref.lines);
+  if (end < start) die('codeRefs: 行範囲が逆転しています: ' + ref.file + ':' + ref.lines);
+  if (end > lines.length) {
+    warnings.push('codeRefs: 終了行をファイル末尾に丸めました（' + ref.file + ':' + ref.lines + ' → ' + lines.length + '）');
+    end = lines.length;
+  }
+  if (end - start + 1 > CODEREF_MAX_LINES) {
+    die('codeRefs: 1件あたり ' + CODEREF_MAX_LINES + ' 行までです（' + ref.file + ':' + ref.lines + ' は ' + (end - start + 1) + ' 行）');
+  }
+  if (changedPaths.has(rel)) {
+    warnings.push('codeRefs: 変更対象ファイルからの引用です（' + ref.file + '）。変更点はファイル行の diff が示すので、背景に必要かを確認してください');
+  }
+  return { file: rel, caption: ref.caption, startLine: start, endLine: end, code: lines.slice(start - 1, end).join('\n') };
+}
+
 function cmdRender(opts) {
   for (const k of ['data', 'map', 'out']) if (!opts[k]) die('render には --' + k + ' が必要です');
   const data = JSON.parse(fs.readFileSync(opts.data, 'utf8'));
@@ -376,7 +435,7 @@ function cmdRender(opts) {
 
   // 完全性検査: 変更された全ファイルがユニットかノイズ棚に割り当てられているか
   const claimed = new Map();
-  for (const u of data.units) for (const f of u.files) if (!claimed.has(f)) claimed.set(f, u.id);
+  for (const u of data.units) for (const f of u.files) if (!claimed.has(f.path)) claimed.set(f.path, u.id);
   for (const g of data.noise || []) {
     for (const f of g.files || []) {
       const p = typeof f === 'string' ? f : f.path;
@@ -401,17 +460,30 @@ function cmdRender(opts) {
     warnings.push('未割り当ての ' + unclaimed.length + ' ファイルを「未分類の変更」グループとしてノイズ棚に追加しました');
   }
 
-  // ユニットの全 diff をパッチから充填（モデルによる転記を排除する）
+  // ファイル行への充填（モデルによる転記を排除する）: 統計・diff 本文・そのファイルに載るポイント番号
+  const changedPaths = new Set(map.files.map(f => f.path));
   for (const u of data.units) {
-    u.fullDiff = u.files.map(p => {
-      const f = byPath.get(p);
-      if (!f) return { file: p, diff: '', note: '差分に存在しないパス（要確認）' };
-      if (f.binary) return { file: p, diff: '', note: 'バイナリファイルのため diff なし' };
+    const pointNos = new Map();
+    for (const p of u.points) {
+      const paths = new Set([p.file, ...(p.diffs || []).map(d => d.file)]
+        .filter(x => typeof x === 'string').map(x => x.replace(/:\d+$/, '')));
+      for (const q of paths) {
+        if (!pointNos.has(q)) pointNos.set(q, []);
+        if (!pointNos.get(q).includes(p.no)) pointNos.get(q).push(p.no);
+      }
+    }
+    u.files = u.files.map((row, i) => {
+      const out = { ...row, rowId: u.id + '-f' + (i + 1), points: (pointNos.get(row.path) || []).sort((a, b) => a - b) };
+      const f = byPath.get(row.path);
+      if (!f) return { ...out, diff: '', diffNote: '差分に存在しないパス（要確認）' };
+      Object.assign(out, { status: f.status, binary: f.binary, adds: f.adds, dels: f.dels });
+      if (f.binary) return { ...out, diff: '', diffNote: 'バイナリファイルのため diff なし' };
       const patch = readPatch(f);
-      if (!patch) return { file: p, diff: '', note: f.note || 'diff を取得できませんでした' };
+      if (!patch) return { ...out, diff: '', diffNote: f.note || 'diff を取得できませんでした' };
       const t = truncatePatch(patch, FULLDIFF_MAX_LINES);
-      return { file: p, diff: t.diff, note: t.note || undefined };
+      return { ...out, diff: t.diff, diffNote: t.note || undefined };
     });
+    if (u.codeRefs) u.codeRefs = u.codeRefs.map(r => extractCodeRef(map.root, r, changedPaths, warnings));
   }
 
   // ノイズ棚: ファイル統計の付与と、小さなグループへの diff 添付
@@ -456,8 +528,11 @@ function cmdRender(opts) {
   fs.writeFileSync(opts.out, html);
 
   const points = data.units.reduce((s, u) => s + u.points.length, 0);
+  const backgrounds = data.units.filter(u => u.background).length;
+  const codeRefs = data.units.reduce((s, u) => s + (u.codeRefs || []).length, 0);
   console.log('[review-walkthrough] 出力: ' + opts.out + '（' + Math.round(html.length / 1024) + 'KB）');
-  console.log('ユニット ' + data.units.length + ' ・ 重要ポイント ' + points + ' ・ ノイズ棚 ' + noisePaths.size + ' ファイル');
+  console.log('ユニット ' + data.units.length + '（背景 ' + backgrounds + ' ・ コード引用 ' + codeRefs + '）' +
+    ' ・ 重要ポイント ' + points + ' ・ ノイズ棚 ' + noisePaths.size + ' ファイル');
   for (const w of warnings) warnOut(w);
 }
 

@@ -97,6 +97,7 @@ section { scroll-margin-top:70px; }
 .ucard .no { font-size:11px; color:var(--muted); font-weight:700; letter-spacing:.05em; }
 .ucard h3 { margin:2px 0 6px; font-size:14.5px; line-height:1.45; }
 .ucard p { margin:0 0 8px; font-size:12.5px; color:var(--muted); line-height:1.6; }
+.ucard .nums { font-family:ui-monospace,monospace; font-size:11.5px; }
 .ucard .chips { display:flex; gap:5px; flex-wrap:wrap; }
 .howto { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin-top:18px; font-size:13.5px; }
 .howto ul { margin:8px 0 0; padding-left:20px; }
@@ -114,16 +115,47 @@ section { scroll-margin-top:70px; }
 .src-conv { background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent); }
 .src-doc { background:color-mix(in srgb, var(--ok) 14%, transparent); color:var(--ok); }
 .src-inf { background:color-mix(in srgb, var(--q) 16%, transparent); color:var(--q); }
-.fchip { font-size:11px; background:var(--panel2); border:1px solid var(--border); border-radius:4px; padding:1px 6px; color:var(--muted); }
 
 /* ---- unit ---- */
-.u-head { border-bottom:2px solid var(--border); padding-bottom:12px; margin-bottom:18px; }
+.u-head { border-bottom:2px solid var(--border); padding-bottom:12px; margin-bottom:16px; }
 .u-kicker { font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--accent); }
-.u-goal { color:var(--muted); margin:2px 0 8px; }
-.u-files { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0; }
-.u-meta { font-size:13px; margin:3px 0; }
+.u-goal { color:var(--muted); margin:2px 0 0; }
+.u-meta { font-size:13px; margin:12px 0 0; }
 .u-meta b { color:var(--muted); font-weight:600; margin-right:4px; }
 .u-review { margin-top:14px; }
+.u-sub { font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--muted); margin:20px 0 6px; }
+.u-sub span { font-weight:400; letter-spacing:0; }
+
+/* ---- unit: 背景（判断に必要な仕組み） ---- */
+.u-bg { background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:10px; padding:12px 18px 14px; margin:14px 0 0; }
+.u-bg > :first-child { margin-top:0; }
+.u-bg > :last-child { margin-bottom:0; }
+.u-bg .codeblock { background:var(--code-bg); }
+
+/* ---- unit: ファイル表（行＝そのファイルの diff） ---- */
+.filelist { border:1px solid var(--border); border-radius:10px; overflow:hidden; background:var(--panel); }
+details.frow { border-bottom:1px solid var(--border); scroll-margin-top:70px; }
+details.frow:last-child { border-bottom:none; }
+details.frow > summary { display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 10px; padding:8px 14px; list-style:none; cursor:pointer; }
+details.frow > summary::-webkit-details-marker { display:none; }
+details.frow > summary::before { content:"▸"; flex:none; width:10px; font-size:11px; color:var(--muted); transition:transform .15s; }
+details.frow[open] > summary::before { transform:rotate(90deg); }
+details.frow > summary:hover { background:var(--panel2); }
+details.frow[open] > summary { background:var(--panel2); border-bottom:1px solid var(--border); }
+.fno { flex:none; min-width:13px; font-size:11px; font-weight:700; color:var(--muted); }
+.fpath { font-size:12.5px; word-break:break-all; }
+.fst { font-size:10px; font-weight:700; color:var(--muted); border:1px solid var(--border); border-radius:3px; padding:0 4px; }
+.fdelta { margin-left:auto; flex:none; font-family:ui-monospace,monospace; font-size:11.5px; white-space:nowrap; }
+.fdelta .add { color:var(--ok); } .fdelta .del { color:var(--fix); }
+.fpts { display:flex; flex:none; gap:4px; }
+.pref { font-size:10.5px; font-weight:700; color:var(--accent); border:1px solid var(--accent); border-radius:4px; padding:0 5px; cursor:pointer; }
+.pref:hover { background:var(--accent); color:var(--accent-fg); }
+.frole { flex-basis:100%; margin-left:20px; font-size:12.8px; line-height:1.65; color:var(--muted); }
+.frole .fnote { font-size:11.5px; }
+.frow-body { padding:10px 14px 12px; background:var(--panel2); }
+.frow-body > .codeblock { margin:0; }
+.loc-diff { font-size:11.5px; color:var(--accent); background:var(--panel2); border:1px solid var(--border); border-radius:5px; padding:1px 8px; margin-left:6px; cursor:pointer; }
+.loc-diff:hover { border-color:var(--accent); }
 
 /* ---- point card ---- */
 .point { background:var(--panel); border:1px solid var(--border); border-radius:11px; box-shadow:var(--shadow); padding:15px 18px 13px; margin:16px 0; }
@@ -346,7 +378,7 @@ function parseDiff(text) {
   }
   return rows;
 }
-function codeBlock(file, diffText, note) {
+function diffTable(file, diffText) {
   const lang = extLang(file);
   const body = parseDiff(diffText).map(r => {
     if (r.k === 'hunk') {
@@ -356,10 +388,24 @@ function codeBlock(file, diffText, note) {
     return '<tr class="r-' + r.k + '"><td class="ln">' + (r.o ?? '') + '</td><td class="ln">' + (r.n ?? '') +
       '</td><td class="sign">' + sign + '</td><td class="code">' + hl(r.text, lang) + '</td></tr>';
   }).join('');
+  return '<div class="tblwrap"><table class="diff">' + body + '</table></div>';
+}
+function codeBlock(file, diffText, note) {
   return '<figure class="codeblock"><figcaption class="cap"><code>' + esc(String(file).replace(/:\d+$/, '')) +
-    '</code><span class="lang">' + esc(lang) + '</span></figcaption>' +
-    '<div class="tblwrap"><table class="diff">' + body + '</table></div></figure>' +
+    '</code><span class="lang">' + esc(extLang(file)) + '</span></figcaption>' +
+    diffTable(file, diffText) + '</figure>' +
     (note ? '<p class="block-note">' + esc(note) + '</p>' : '');
+}
+/* 差分ではない現行コードの引用（ユニット背景の codeRefs）。本文は render が現物から抽出したもの。 */
+function codeQuote(r) {
+  const lang = extLang(r.file);
+  const rows = String(r.code).split('\n').map((line, i) =>
+    '<tr><td class="ln">' + (r.startLine + i) + '</td><td class="code">' + hl(line, lang) + '</td></tr>').join('');
+  const range = r.startLine + (r.endLine !== r.startLine ? '-' + r.endLine : '');
+  return '<figure class="codeblock"><figcaption class="cap"><code>' + esc(r.file + ':' + range) +
+    '</code><span class="lang">' + esc(lang) + '</span></figcaption>' +
+    '<div class="tblwrap"><table class="diff">' + rows + '</table></div></figure>' +
+    (r.caption ? '<p class="block-note">' + esc(r.caption) + '</p>' : '');
 }
 
 /* ================= 語彙 ================= */
@@ -398,16 +444,30 @@ function srcChip(src) {
   const s = SRC[src]; if (!s) return '';
   return '<span class="chip ' + s.cls + '" title="' + esc(s.title) + '">' + s.label + '</span>';
 }
-function fileChip(u, f) {
-  const note = u.fileNotes && u.fileNotes[f];
-  return '<span class="fchip">' + esc(f) + (note ? '（' + esc(note) + '）' : '') + '</span>';
+const PID_BY_NO = {};
+function fileRow(f, i) {
+  const delta = f.binary ? '<span class="muted">binary</span>'
+    : '<span class="add">+' + (f.adds ?? 0) + '</span> <span class="del">−' + (f.dels ?? 0) + '</span>';
+  const st = f.status && f.status !== 'M' ? '<span class="fst">' + esc(f.status) + '</span>' : '';
+  const pts = (f.points || []).map(n =>
+    '<span class="pref" data-jump="' + esc(PID_BY_NO[n] || '') + '" title="このファイルにあるポイントへ移動">P' + n + '</span>').join('');
+  const body = f.diff ? diffTable(f.path, f.diff) + (f.diffNote ? '<p class="fold-note">' + esc(f.diffNote) + '</p>' : '')
+    : '<p class="fold-note">' + esc(f.diffNote || 'diff なし') + '</p>';
+  return '<details class="frow" id="' + esc(f.rowId) + '">' +
+    '<summary><span class="fno">' + (i + 1) + '</span><code class="fpath">' + esc(f.path) + '</code>' + st +
+    '<span class="fdelta">' + delta + '</span><span class="fpts">' + pts + '</span>' +
+    '<span class="frole">' + f.role + (f.note ? ' <span class="fnote">（' + esc(f.note) + '）</span>' : '') + '</span>' +
+    '</summary><div class="frow-body">' + body + '</div></details>';
 }
-function renderPoint(p) {
+function renderPoint(p, u) {
   const k = KINDS[p.kind] || KINDS.complexity;
+  const row = u.files.find(f => f.path === String(p.file).replace(/:\d+$/, ''));
   return '<article class="point" id="' + p.id + '">' +
     '<header class="p-head"><span class="badge ' + k.cls + '">' + k.label + '</span>' +
     '<span class="p-no">P' + p.no + '</span><h4>' + esc(p.title) + '</h4></header>' +
-    '<div class="p-loc"><code class="loc" data-copy="' + esc(p.file) + '" title="クリックでパスをコピー">' + esc(p.file) + '</code></div>' +
+    '<div class="p-loc"><code class="loc" data-copy="' + esc(p.file) + '" title="クリックでパスをコピー">' + esc(p.file) + '</code>' +
+    (row ? '<span class="loc-diff" data-jump="' + esc(row.rowId) + '" title="このファイル全体の diff を開く">ファイル全体の diff</span>' : '') +
+    '</div>' +
     '<dl class="p-facts">' +
     '<dt>何をしているか</dt><dd>' + p.what + '</dd>' +
     '<dt>なぜ</dt><dd>' + srcChip(p.whySource) + p.why + '</dd>' +
@@ -423,23 +483,20 @@ function renderPoint(p) {
     '</article>';
 }
 function renderUnit(u, idx) {
-  const full = (u.fullDiff || []).map(d =>
-    d.diff ? codeBlock(d.file, d.diff, d.note) :
-    '<p class="fold-note"><code>' + esc(d.file) + '</code> — ' + esc(d.note || 'diff なし') + '</p>').join('');
+  const bg = u.background
+    ? '<div class="u-sub">背景 — このユニットの判断に必要な仕組み</div>' +
+      '<div class="u-bg">' + u.background + (u.codeRefs || []).map(codeQuote).join('') + '</div>'
+    : '';
   return '<section class="unit" id="' + u.id + '">' +
     '<header class="u-head">' +
     '<div class="u-kicker">ユニット ' + (idx + 1) + ' / ' + DATA.units.length + '</div>' +
     '<h2>' + esc(u.name) + '</h2>' +
     '<p class="u-goal">' + u.goal + '</p>' +
-    '<div class="u-files">' + u.files.map(f => fileChip(u, f)).join('') + '</div>' +
-    (u.flow ? '<p class="u-meta"><b>流れ</b> ' + u.flow + '</p>' : '') +
+    '</header>' + bg +
+    '<div class="u-sub">ファイル ' + u.files.length + ' 件 <span>— 読む順。行を開くとそのファイルの diff。P番号はそこに載るポイント</span></div>' +
+    '<div class="filelist">' + u.files.map(fileRow).join('') + '</div>' +
     (u.order ? '<p class="u-meta"><b>読む順</b> ' + u.order + '</p>' : '') +
-    '</header>' +
-    u.points.map(renderPoint).join('') +
-    (full ? '<details class="fold"><summary>このユニットの全 diff <span class="sum-sub">（' + (u.fullDiff || []).length + ' ファイル）</span></summary>' +
-      '<div class="fold-body">' + full +
-      (u.fullDiffNote ? '<p class="fold-note">' + esc(u.fullDiffNote) + '</p>' : '') +
-      '</div></details>' : '') +
+    u.points.map(p => renderPoint(p, u)).join('') +
     '<div class="u-review"><textarea class="u-comment" data-unit="' + u.id + '" rows="1" ' +
     'placeholder="このユニットへのコメント（ポイント以外への指摘）"></textarea></div>' +
     '</section>';
@@ -447,11 +504,17 @@ function renderUnit(u, idx) {
 function renderOverview() {
   const m = DATA.meta;
   const s = m.stats || {};
-  const cards = DATA.units.map((u, i) =>
-    '<a class="ucard" href="#' + u.id + '"><div class="no">UNIT ' + (i + 1) + '</div><h3>' + esc(u.name) + '</h3>' +
-    '<p>' + (u.tagline || '') + '</p><div class="chips">' +
-    u.points.map(p => '<span class="badge sm ' + (KINDS[p.kind] || KINDS.complexity).cls + '">' + (KINDS[p.kind] || KINDS.complexity).label + '</span>').join('') +
-    '</div></a>').join('');
+  const cards = DATA.units.map((u, i) => {
+    const n = {};
+    u.points.forEach(p => { n[p.kind] = (n[p.kind] || 0) + 1; });
+    const chips = Object.keys(n).map(kind => {
+      const k = KINDS[kind] || KINDS.complexity;
+      return '<span class="badge sm ' + k.cls + '">' + k.label + (n[kind] > 1 ? ' ×' + n[kind] : '') + '</span>';
+    }).join('');
+    return '<a class="ucard" href="#' + u.id + '"><div class="no">UNIT ' + (i + 1) + '</div><h3>' + esc(u.name) + '</h3>' +
+      '<p class="nums">' + u.points.length + ' ポイント ・ ' + u.files.length + ' ファイル</p>' +
+      '<div class="chips">' + chips + '</div></a>';
+  }).join('');
   return '<section id="overview">' +
     (m.note ? '<div class="noteband">' + esc(m.note) + '</div>' : '') +
     '<h2>変更の全体像</h2>' +
@@ -466,6 +529,7 @@ function renderOverview() {
     '<div class="unit-cards">' + cards + '</div>' +
     '<div class="howto"><b>この資料の使い方</b><ul>' +
     '<li>ユニットは<b>推奨の読み順</b>に並んでいます。各ポイントを確認したら <b>OK / 要修正 / 質問</b> を選んでください。進捗と目次に反映されます（入力はこのブラウザ内にのみ保存）。</li>' +
+    '<li>各ユニットは <b>目的 → 背景 → ファイル表 → 重要ポイント</b> の順です。ファイル表は読む順に並び、<b>行を開くとそのファイルの diff だけ</b>が出ます（P番号＝そこに載るポイント）。</li>' +
     '<li>「なぜ」の出所チップ: ' + srcChip('conversation') + '実装時の会話に根拠あり ／ ' + srcChip('doc') + '設計ドキュメントに根拠あり ／ ' + srcChip('inferred') + '<b>コード・履歴からの再構成</b>。推定は鵜呑みにせず、確認ポイントを起点に検証してください。</li>' +
     '<li>読み終えたら<b>「フィードバック書き出し」</b>で要修正・質問だけが Markdown になります。そのまま AI に貼れば修正依頼になります。</li>' +
     '</ul></div>' +
@@ -589,6 +653,16 @@ function openExport() {
 /* ================= イベント ================= */
 function bind() {
   document.addEventListener('click', e => {
+    const jump = e.target.closest('[data-jump]');
+    if (jump) {
+      e.preventDefault(); // summary 内から押されたときに details のトグルを起こさない
+      const el = document.getElementById(jump.dataset.jump);
+      if (el) {
+        if (el.tagName === 'DETAILS') el.open = true;
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
     const seg = e.target.closest('.status-seg button');
     if (seg) {
       pstate(seg.closest('.status-seg').dataset.point).st = seg.dataset.v;
@@ -651,6 +725,7 @@ function boot() {
   if (!DATA) throw new Error('レビューデータが注入されていません。scripts/build.mjs の render で生成してください。');
   KEY = 'rw-' + djb2(String(DATA.meta.target) + '|' + String(DATA.meta.title));
   loadState();
+  allPoints().forEach(p => { PID_BY_NO[p.no] = p.id; });
   document.title = 'Walkthrough: ' + DATA.meta.title;
   document.getElementById('tb-title').textContent = DATA.meta.title;
   document.getElementById('tb-meta').innerHTML =
