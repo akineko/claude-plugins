@@ -9,10 +9,12 @@
 [2] feature-options       → 同 feature-options.md (機能設計書)
 [3] impact-analysis       → 同 impact-analysis.md (影響分析書)
 [4] implementation-design → 同 implementation-design-<バッチスラッグ>.md (実装設計書)
-[5] phase-implementation  → コード + テスト
+[5] phase-implementation / plan-implementation → コード + テスト
 ```
 
 各段は前段の成果物だけを入力とし、後段の存在が前段の「やらないこと」を規定する([1]はHowに踏み込まない、[2]は実装目線に踏み込まない、[3]は詳細なHowを決めない、[4]は契約レベルで止める、等)。原則・フォーマット・進め方の詳細は各スキルの SKILL.md を参照。
+
+[5] 実装段は2スキルから運用で選ぶ: **phase-implementation** は1実行=1フェーズで、フェーズ毎に人間のレビュー・コミットを挟むサイクル向け。**plan-implementation** は1実行=全フェーズで、フェーズ毎に検証済みコミットを刻みながら自律的に完走する(レビューは完走後にまとめて行う運用)。
 
 成果物は機能ごとに1ディレクトリへ集約される。[4] はバッチ数だけファイルが並ぶ点に注意([5] の成果物はこのディレクトリではなくコードベース側のコードとテストに現れる):
 
@@ -28,7 +30,7 @@ docs/plans/<機能名>/
 
 ## 軽量版: quick-design
 
-小規模な機能追加・修正(振る舞いのまとまりが1〜2個、設計バッチ1個相当)は、[1]〜[4] 相当を1実行に集約した quick-design で進められる。成果物は `docs/plans/<機能名>.md` の1ファイルで、`## 2`〜`## 5` が実装設計書と同一構造のため、そのまま [5] phase-implementation に渡せる。規模が目安を超えると判定した場合は完走せず、request-spec からのフルパイプラインを案内する(基準は quick-design の SKILL.md「入口ガード」参照)。
+小規模な機能追加・修正(振る舞いのまとまりが1〜2個、設計バッチ1個相当)は、[1]〜[4] 相当を1実行に集約した quick-design で進められる。成果物は `docs/plans/<機能名>.md` の1ファイルで、`## 2`〜`## 5` が実装設計書と同一構造のため、そのまま [5] の実装スキル(phase-implementation / plan-implementation)に渡せる。規模が目安を超えると判定した場合は完走せず、request-spec からのフルパイプラインを案内する(基準は quick-design の SKILL.md「入口ガード」参照)。
 
 ## スキル一覧
 
@@ -39,6 +41,7 @@ docs/plans/<機能名>/
 | impact-analysis | 機能設計書から変更点・影響範囲・コードベース上の関連箇所・設計トピック・設計バッチを整理し、影響分析書にまとめる | feature-options.md | 機能につき1回 |
 | implementation-design | 影響分析書の設計バッチを、骨格設計→詳細設計の2段階で実装設計書に落とす | impact-analysis.md | 設計バッチ数だけ繰り返す(1実行=1バッチ) |
 | phase-implementation | 実装設計書の実装計画をフェーズ単位で実装し、独立した検証まで行う | implementation-design-*.md + 対象フェーズ番号 | フェーズ数だけ繰り返す(1実行=1フェーズ) |
+| plan-implementation | 実装設計書の実装計画を全フェーズ通しで実装し、フェーズ毎に「実装→独立検証→コミット」を刻んで完走する | implementation-design-*.md (+開始フェーズ番号) | 設計書につき1回(1実行=全フェーズ) |
 | quick-design | 小規模な機能追加・修正向けに、要求整理〜実装設計([1]〜[4]相当)を1実行・1ファイルで完結させる軽量版 | 要望のテキストまたはパス | 機能につき1回 |
 
 ## 使い方
@@ -51,6 +54,7 @@ docs/plans/<機能名>/
 /spec-toolkit:impact-analysis docs/plans/favorite-products/feature-options.md
 /spec-toolkit:implementation-design docs/plans/favorite-products/impact-analysis.md
 /spec-toolkit:phase-implementation docs/plans/favorite-products/implementation-design-persistence.md 1
+/spec-toolkit:plan-implementation docs/plans/favorite-products/implementation-design-persistence.md
 /spec-toolkit:quick-design "商品一覧カードに在庫数を表示したい"
 ```
 
@@ -62,7 +66,7 @@ docs/plans/<機能名>/
 
 実装中や後段の分析で、前段の成果物に不備や前提とのズレが見つかることがある。差し戻しの入口は主に2つ:
 
-- **phase-implementation の完了報告「契約に関する報告」**: 実装中に見つかった、実装設計書側へ反映すべき解釈・曖昧さ・逸脱
+- **phase-implementation / plan-implementation の完了報告・完走報告「契約に関する報告」**: 実装中に見つかった、実装設計書側へ反映すべき解釈・曖昧さ・逸脱
 - **impact-analysis の「機能設計書の前提と現状コードの齟齬」**(`5. 後続フェーズへの引き継ぎ` 内): 機能設計書が前提にしたことと現状コードの不整合
 
 例: phase-implementation の完了報告で「レスポンス形が実装設計書の前提と異なる解釈で実装した」と報告された場合、それが該当フィールドの型を直すだけなら軽微な修正、API 契約自体を設計し直す必要があるなら implementation-design の再実行を検討する。
@@ -77,7 +81,7 @@ docs/plans/<機能名>/
 
 ## エージェント一覧
 
-impact-analysis・implementation-design・phase-implementation・quick-design は、調査・設計・実装・検証をサブエージェントに委譲する。
+impact-analysis・implementation-design・phase-implementation・plan-implementation・quick-design は、調査・設計・実装・検証をサブエージェントに委譲する。
 
 | エージェント | 呼び出し元 | 役割 |
 |---|---|---|
@@ -85,8 +89,8 @@ impact-analysis・implementation-design・phase-implementation・quick-design �
 | greenfield-architect | implementation-design | 骨格設計・詳細設計+実装計画の主設計を担う(既存実装や移行コストを考慮しない、要件を満たす最もシンプルな設計) |
 | brownfield-architect | implementation-design | 既存コードベースとの整合・移行コスト・障害リスク・段階導入可能性の観点で骨格を批評する(独立した代替案は出さず、局所修正提案のみ) |
 | domain-first-architect | implementation-design | ドメイン概念の境界・不変条件の集中・用語の一貫性の観点で骨格を批評する(独立した代替案は出さず、局所修正提案のみ) |
-| implementation-engineer | phase-implementation | 実装設計書の契約(確定仕様)に従い、TDD でコードに変換する(完了判定は行わない) |
-| completion-verifier | phase-implementation | テスト実行・リグレッション確認・設計書契約との整合を、実装者から独立に検証する(コードの修正は行わない) |
+| implementation-engineer | phase-implementation, plan-implementation | 実装設計書の契約(確定仕様)に従い、TDD でコードに変換する(完了判定は行わない) |
+| completion-verifier | phase-implementation, plan-implementation | テスト実行・リグレッション確認・設計書契約との整合を、実装者から独立に検証する(コードの修正は行わない) |
 
 批評役(brownfield-architect, domain-first-architect)と completion-verifier は編集ツールを持たない。局所修正提案・検証結果の指摘に留まり、代替設計への差し替えやコード修正はできない立て付けになっている。
 

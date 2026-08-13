@@ -1,7 +1,7 @@
 # implementation-engineer 設計ノート
 
 > 定義=implementation-engineer.md / 本ファイル=保守者向けの決定の出所・load-bearing な制約。定義の再掲はしない。
-> phase-implementation スキルのオーケストレーションの一部。全体設計(実装/検証の分離・差し戻しループ・ハーネス範囲)は `../skills/phase-implementation/RATIONALE.md` 参照。
+> phase-implementation / plan-implementation 両スキルのオーケストレーションの一部。全体設計(実装/検証の分離・差し戻しループ・ハーネス範囲)は `../skills/phase-implementation/RATIONALE.md`、連続実行・コミットに固有の決定は `../skills/plan-implementation/RATIONALE.md` 参照。
 
 ## 中核的な設計判断
 
@@ -31,3 +31,4 @@
 
 - 2026-07-02: 新規作成。
 - 2026-07-22: コードコメントの規律を追加(実運用フィードバック起点。設計書転記の禁止・フェーズ境界 TODO の例外・プロジェクト規約の優先)。
+- 2026-07-27: 呼び出し元に plan-implementation を追加(併記のみ。TDD・契約遵守の規律は不変)。

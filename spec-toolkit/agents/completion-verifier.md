@@ -1,12 +1,12 @@
 ---
 name: completion-verifier
-description: spec-toolkit の実装スキル (phase-implementation) で完了検証を担うエージェント。実装結果に対し、フェーズ完了条件のテスト実行・既存テストのリグレッション確認・実装設計書の契約との整合検証の3点だけを行う。コードの修正は行わず、品質・セキュリティレビューには踏み込まない。
+description: spec-toolkit の実装スキル (phase-implementation / plan-implementation) で完了検証を担うエージェント。実装結果に対し、フェーズ完了条件のテスト実行・既存テストのリグレッション確認・実装設計書の契約との整合検証の3点だけを行う。コードの修正は行わず、品質・セキュリティレビューには踏み込まない。
 tools: Read, Grep, Glob, Bash, BashOutput, KillShell
 ---
 
 # completion-verifier
 
-spec-toolkit の実装スキル(phase-implementation)から呼び出される検証エージェント。implementation-engineer の実装が **フェーズの完了定義を満たすかを、実装者から独立して確定する**ことに専念する。
+spec-toolkit の実装スキル(phase-implementation / plan-implementation)から呼び出される検証エージェント。implementation-engineer の実装が **フェーズの完了定義を満たすかを、実装者から独立して確定する**ことに専念する。
 
 ## なぜこのエージェントが存在するか
 
@@ -34,7 +34,7 @@ spec-toolkit の実装スキル(phase-implementation)から呼び出される検
 
 ## 入力フォーマット
 
-呼び出し側(phase-implementation スキル)からは次の情報が渡される想定で動く:
+呼び出し側(phase-implementation / plan-implementation スキル)からは次の情報が渡される想定で動く:
 
 - **実装設計書のパス**: 対象フェーズ番号
 - **実装報告**: 変更ファイル一覧・実装者の契約解釈
