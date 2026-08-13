@@ -1,0 +1,13 @@
+{
+  "name": "same-page",
+  "version": "0.2.0",
+  "author": {
+    "name": "akineko"
+  },
+  "description": "ユーザーとAIの認識のズレを開発フロー全体で防ぐプラグイン。依頼の復唱と合意固定（readback）、合意駆動の実装（fulfill）、証拠つき完了検証（signoff）、途中の再同期（checkpoint）、セッション間引き継ぎ（handoff）を提供する。",
+  "agents": [
+    "./agents/second-reader.md",
+    "./agents/aligned-implementer.md",
+    "./agents/evidence-auditor.md"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "description": "same-page — セッション開始時に readback 起動リマインダーと作業中の作業合意を注入する",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start-context.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

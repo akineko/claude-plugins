@@ -47,6 +47,10 @@
     {
       "name": "refactor-toolkit",
       "source": "./refactor-toolkit"
+    },
+    {
+      "name": "same-page",
+      "source": "./same-page"
     }
   ]
 }
